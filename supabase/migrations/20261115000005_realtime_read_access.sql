@@ -39,3 +39,11 @@ CREATE POLICY "Users can view alarm rules in their factory"
   ON alarm_rules FOR SELECT
   USING (true);
 
+-- 6. PUBLISH DEVICES TABLE TO REALTIME STREAM
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE devices;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+

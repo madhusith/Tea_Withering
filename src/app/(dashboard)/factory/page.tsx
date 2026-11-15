@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Factory,
@@ -7,11 +8,22 @@ import {
   CheckCircle2,
   AlertTriangle,
   Layers,
+  Plus,
+  Trash2,
+  X,
+  Radio,
 } from "lucide-react";
 import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
+import { toast } from "sonner";
 
 export default function FactoryMonitoringPage() {
-  const { troughs, lastHeartbeat, isConnected } = useTelemetryRealtime();
+  const { troughs, lastHeartbeat, isConnected, addTrough, removeTrough } = useTelemetryRealtime();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deviceCode, setDeviceCode] = useState("");
+  const [bayName, setBayName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const normalCount = troughs.filter((t) => t.status === "NORMAL").length;
   const warningCount = troughs.filter((t) => t.status === "WARNING").length;
@@ -20,6 +32,51 @@ export default function FactoryMonitoringPage() {
     troughs.length > 0
       ? (troughs.reduce((acc, t) => acc + t.delta, 0) / troughs.length).toFixed(1)
       : "4.2";
+
+  const handleOpenAddModal = () => {
+    // Auto suggest next code
+    const nextNum = troughs.length + 1;
+    const padded = nextNum < 10 ? `00${nextNum}` : `0${nextNum}`;
+    const bayNum = nextNum < 10 ? `0${nextNum}` : `${nextNum}`;
+    setDeviceCode(`TR-${padded}`);
+    setBayName(`Bay ${bayNum}`);
+    setIsModalOpen(true);
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deviceCode.trim() || !bayName.trim()) {
+      toast.error("Please provide both Trough Code and Bay Name.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await addTrough(deviceCode.trim(), bayName.trim());
+    setIsSubmitting(false);
+
+    if (res.success) {
+      toast.success(`Trough ${deviceCode.toUpperCase()} registered and synchronized with Supabase.`);
+      setIsModalOpen(false);
+    } else {
+      toast.error(res.error || "Failed to register trough.");
+    }
+  };
+
+  const handleRemove = async (troughId: string, troughName: string) => {
+    if (!window.confirm(`Are you sure you want to decommission ${troughName}?`)) {
+      return;
+    }
+
+    setDeletingId(troughId);
+    const res = await removeTrough(troughId);
+    setDeletingId(null);
+
+    if (res.success) {
+      toast.success(`${troughName} decommissioned successfully.`);
+    } else {
+      toast.error(res.error || "Failed to remove trough.");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -40,29 +97,41 @@ export default function FactoryMonitoringPage() {
             Trough Telemetry Matrix
           </h1>
           <p className="text-[13px] text-slate-500 mt-0.5">
-            Real-time dry bulb, wet bulb &amp; hygrometric depression (ΔT) • Updated {lastHeartbeat}
+            Real-time dry bulb, wet bulb &amp; hygrometric depression (ΔT) • Updated {lastHeartbeat} •{" "}
+            <span className="font-semibold text-slate-700">{troughs.length} Troughs Online</span>
           </p>
         </div>
 
-        {/* Quick Operational Pills */}
+        {/* Action Button & Operational Pills */}
         <div className="flex items-center flex-wrap gap-2.5">
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="px-3.5 py-1.5 rounded-lg bg-[#116c4a] text-white hover:bg-[#0c4e35] text-[12px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Trough</span>
+          </button>
+
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
             <span>{normalCount} In Target</span>
           </div>
+
           {warningCount > 0 && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
               <span>{warningCount} Deviating</span>
             </div>
           )}
+
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-semibold">
             <span>Avg ΔT: {avgDepression}°C</span>
           </div>
         </div>
       </section>
 
-      {/* 2. Troughs Grid: Compact, simple cards for all bays */}
+      {/* 2. Troughs Grid: Dynamic auto-scaling grid for any number of bays */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {troughs.map((trough) => {
           const isWarning =
@@ -71,7 +140,7 @@ export default function FactoryMonitoringPage() {
           return (
             <div
               key={trough.device_code}
-              className="bg-white rounded-xl p-4 shadow-xs border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl p-4 shadow-xs border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow relative group"
             >
               <div>
                 {/* Bay Header */}
@@ -86,72 +155,88 @@ export default function FactoryMonitoringPage() {
                       {trough.name}
                     </h2>
                   </div>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      isWarning
-                        ? "bg-amber-50 text-amber-800 border border-amber-200"
-                        : "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                    }`}
-                  >
-                    {isWarning ? "Attention" : "Optimal"}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        isWarning
+                          ? "bg-amber-50 text-amber-800 border border-amber-200"
+                          : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      }`}
+                    >
+                      {isWarning ? "Attention" : "Optimal"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(trough.id, trough.name)}
+                      disabled={deletingId === trough.id}
+                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-opacity p-1 rounded cursor-pointer"
+                      title="Decommission trough"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Dry & Wet Bulb Readings */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex flex-col">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50/80 mb-3 border border-slate-100">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       Dry Bulb
                     </span>
-                    <span className="text-[16px] font-bold text-[#1b4332] tabular-nums mt-0.5">
+                    <p className="text-xl font-bold text-[#1b4332] tabular-nums mt-0.5">
                       {trough.temp_dry.toFixed(1)}°C
-                    </span>
+                    </p>
                   </div>
-
-                  <div className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex flex-col">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <div className="border-l border-slate-200 pl-2.5">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       Wet Bulb
                     </span>
-                    <span className="text-[16px] font-bold text-[#0284c7] tabular-nums mt-0.5">
+                    <p className="text-xl font-bold text-[#0284c7] tabular-nums mt-0.5">
                       {trough.temp_wet.toFixed(1)}°C
-                    </span>
+                    </p>
                   </div>
                 </div>
 
-                {/* Wet Bulb Depression Delta */}
-                <div className="p-2.5 rounded-lg bg-amber-50/50 border border-amber-100 mb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] uppercase tracking-wider text-amber-900 font-bold">
+                {/* Calculated Hygrometric Depression (ΔT) */}
+                <div
+                  className={`p-2.5 rounded-lg border mb-3 flex items-center justify-between ${
+                    isWarning
+                      ? "bg-amber-50/70 border-amber-200 text-amber-900"
+                      : "bg-[#f8f9fa] border-slate-200/80 text-slate-800"
+                  }`}
+                >
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">
                       Depression (ΔT)
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-500">
+                    <p className="text-xl font-extrabold tabular-nums leading-tight">
+                      {trough.delta.toFixed(1)}°C
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-400 block font-medium">
                       Target 3.5–4.8°C
                     </span>
-                  </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-bold text-amber-900 tabular-nums">
-                      {trough.delta.toFixed(1)}°C
-                    </span>
-                    <span className="text-[11px] text-amber-700 font-medium">
-                      {trough.delta >= 3.5 && trough.delta <= 4.8
-                        ? "Within Target"
-                        : "Out of Band"}
+                    <span
+                      className={`text-[10px] font-bold ${
+                        isWarning ? "text-amber-700" : "text-emerald-700"
+                      }`}
+                    >
+                      {isWarning ? "Out of Band" : "Within Target"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Card Footer with Link */}
-              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">
-                  {trough.device_code} • {trough.last_seen_at}
-                </span>
+              {/* Card Footer: Code + Timestamp + Direct Link */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span className="font-mono font-medium">{trough.device_code} • {trough.last_seen_at}</span>
                 <Link
                   href={`/troughs/${trough.device_code}`}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#116c4a] hover:text-[#012d1d] transition-colors"
+                  className="font-semibold text-slate-600 hover:text-[#012d1d] flex items-center gap-1 transition-colors"
                 >
                   <span>Dial Detail</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
@@ -159,14 +244,14 @@ export default function FactoryMonitoringPage() {
         })}
       </div>
 
-      {/* 3. Detailed Comparative Telemetry Table */}
-      <section className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+      {/* 3. Comprehensive Summary Table */}
+      <section className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden mt-2">
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#012d1d]" />
-            <h3 className="text-[15px] font-bold text-[#012d1d]">
+            <Layers className="w-4 h-4 text-[#116c4a]" />
+            <h2 className="text-[14px] font-bold text-[#012d1d]">
               Live Sensor Telemetry Log
-            </h3>
+            </h2>
           </div>
           <span className="text-[11px] text-slate-400">
             Updated via LoRa Gateway • 100% Signal
@@ -176,7 +261,7 @@ export default function FactoryMonitoringPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-[12px]">
             <thead>
-              <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50/80 text-slate-500 text-[10px] uppercase tracking-wider border-b border-slate-200 font-bold">
                 <th className="py-2.5 px-4">Trough Code</th>
                 <th className="py-2.5 px-4">Name</th>
                 <th className="py-2.5 px-4">Dry Bulb</th>
@@ -246,6 +331,93 @@ export default function FactoryMonitoringPage() {
           </table>
         </div>
       </section>
+
+      {/* 4. Add Trough Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl max-w-md w-full border border-slate-200">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#e8f5e9] text-[#116c4a] flex items-center justify-center font-bold">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#012d1d]">
+                    Register Withering Trough
+                  </h3>
+                  <p className="text-[12px] text-slate-500">
+                    Connects to St. Clair Gateway GW-STCLAIR-01
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                  Device Hardware Code
+                </label>
+                <input
+                  type="text"
+                  value={deviceCode}
+                  onChange={(e) => setDeviceCode(e.target.value)}
+                  placeholder="e.g. TR-005"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-[13px] focus:outline-none focus:border-[#116c4a]"
+                  required
+                />
+                <span className="text-[11px] text-slate-400 mt-1 block">
+                  Identifier mapped in LoRa telemetry gateway packets
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                  Bay Name / Description
+                </label>
+                <input
+                  type="text"
+                  value={bayName}
+                  onChange={(e) => setBayName(e.target.value)}
+                  placeholder="e.g. Bay 05"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:outline-none focus:border-[#116c4a]"
+                  required
+                />
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-lg text-[11px] text-slate-600 flex items-start gap-2">
+                <Radio className="w-4 h-4 text-[#116c4a] shrink-0 mt-0.5" />
+                <span>
+                  Once registered, this trough will immediately appear across all factory displays and begin accepting telemetry readings from the hardware gateway.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-lg bg-[#116c4a] text-white text-[13px] font-semibold hover:bg-[#0c4e35] shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  {isSubmitting ? "Provisioning..." : "Provision Trough"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

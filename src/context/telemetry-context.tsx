@@ -14,6 +14,8 @@ interface TelemetryContextType {
   isConnected: boolean;
   refreshTelemetry: () => Promise<void>;
   updateAlarmState: (id: string, newState: "ACKNOWLEDGED" | "SNOOZED" | "CLEARED") => Promise<void>;
+  addTrough: (code: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  removeTrough: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const TelemetryContext = createContext<TelemetryContextType | null>(null);
@@ -241,6 +243,13 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           loadInitialData();
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "devices" },
+        () => {
+          loadInitialData();
+        }
+      )
       .subscribe((status) => {
         setIsConnected(status === "SUBSCRIBED");
       });
@@ -290,6 +299,50 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const addTrough = useCallback(
+    async (code: string, name: string) => {
+      try {
+        const res = await fetch("/api/devices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            device_code: code,
+            name: name,
+            type: "TROUGH",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return { success: false, error: data.error || "Failed to add trough" };
+        }
+        await loadInitialData();
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: err.message || "Network error" };
+      }
+    },
+    [loadInitialData]
+  );
+
+  const removeTrough = useCallback(
+    async (id: string) => {
+      try {
+        const res = await fetch(`/api/devices?id=${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return { success: false, error: data.error || "Failed to remove trough" };
+        }
+        await loadInitialData();
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: err.message || "Network error" };
+      }
+    },
+    [loadInitialData]
+  );
+
   const activeAlertsCount = alerts.filter((a) => a.status === "active").length;
 
   return (
@@ -303,6 +356,8 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         isConnected,
         refreshTelemetry: loadInitialData,
         updateAlarmState,
+        addTrough,
+        removeTrough,
       }}
     >
       {children}
