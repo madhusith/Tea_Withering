@@ -47,6 +47,8 @@ const TelemetryContext = createContext<TelemetryContextType | null>(null);
 
 export function TelemetryProvider({ children }: { children: React.ReactNode }) {
   const { isAdmin, profile } = useAuth();
+  const isAdminRef = useRef<boolean>(isAdmin);
+  const profileRef = useRef<any>(profile);
 
   const [factories, setFactories] = useState<FactoryItem[]>([defaultFactory]);
   const [currentFactory, setCurrentFactory] = useState<FactoryItem>(defaultFactory);
@@ -60,8 +62,10 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
   // Keep ref synchronized
   useEffect(() => {
+    isAdminRef.current = isAdmin;
+    profileRef.current = profile;
     currentFactoryRef.current = currentFactory;
-  }, [currentFactory]);
+  }, [isAdmin, profile, currentFactory]);
 
   const formatTime = (isoString: string) => {
     try {
@@ -81,7 +85,9 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     try {
-      const assignedFactoryId = profile?.factory_id || "22222222-2222-2222-2222-222222222222";
+      const isUserAdmin = isAdminRef.current;
+      const currentProfile = profileRef.current;
+      const assignedFactoryId = currentProfile?.factory_id || "22222222-2222-2222-2222-222222222222";
 
       // 1. Fetch available factories from Admin API
       let fetchedFactories: FactoryItem[] = [];
@@ -117,28 +123,24 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
       // STRICT MULTI-TENANT RBAC ENFORCEMENT:
       // Non-admins (Managers and Viewers) can NEVER see or switch to other factories!
-      if (!isAdmin) {
-        fetchedFactories = fetchedFactories.filter((f) => f.id === assignedFactoryId);
-        if (fetchedFactories.length === 0) {
-          fetchedFactories = [
-            {
-              id: assignedFactoryId,
-              name: profile?.factory_name || "St. Clair Tea Estate",
-              code: "STC-01",
-              location: "Assigned Estate",
-            },
-          ];
-        }
-        setFactories(fetchedFactories);
+      if (!isUserAdmin) {
+        const restricted = fetchedFactories.filter((f) => f.id === assignedFactoryId);
+        setFactories(
+          restricted.length > 0
+            ? restricted
+            : [
+                {
+                  id: assignedFactoryId,
+                  name: currentProfile?.factory_name || "St. Clair Tea Estate",
+                  code: "STC-01",
+                  location: "Assigned Estate",
+                },
+              ]
+        );
       } else {
         // Admins see all registered factories across the organization
         if (fetchedFactories.length > 0) {
-          setFactories((prev) => {
-            const map = new Map<string, FactoryItem>();
-            prev.forEach((f) => map.set(f.id, f));
-            fetchedFactories.forEach((f) => map.set(f.id, f));
-            return Array.from(map.values());
-          });
+          setFactories(fetchedFactories);
         }
       }
 
@@ -149,7 +151,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           ? localStorage.getItem("ceylon_selected_factory_id")
           : null;
 
-      const activeFactoryId = isAdmin
+      const activeFactoryId = isUserAdmin
         ? (targetFactoryId || savedFactoryId || currentFactoryRef.current.id)
         : assignedFactoryId;
 
@@ -389,7 +391,12 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadInitialData, isAdmin, profile?.factory_id]);
+  }, [loadInitialData]);
+
+  // Reload telemetry and factories whenever auth role or profile changes
+  useEffect(() => {
+    loadInitialData();
+  }, [isAdmin, profile?.role, profile?.factory_id, loadInitialData]);
 
   const refreshTelemetry = useCallback(async () => {
     await loadInitialData(currentFactoryRef.current.id);

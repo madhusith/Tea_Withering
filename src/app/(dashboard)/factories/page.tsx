@@ -55,10 +55,18 @@ export default function FactoryManagementPage() {
       return;
     }
 
+    const cleanCode = code.trim().toUpperCase();
+    if (factories.some((f) => f.code.toUpperCase() === cleanCode)) {
+      toast.error(
+        `Factory Code "${cleanCode}" is already in use by another estate. Please choose a unique code (e.g. ${cleanCode}-01).`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     const res = await createFactory({
       name: name.trim(),
-      code: code.trim().toUpperCase(),
+      code: cleanCode,
       location: location.trim(),
       gateway_serial: gatewaySerial.trim() || undefined,
       trough_count: troughCount,

@@ -68,6 +68,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (factoryError) {
+      if (factoryError.code === "23505" || factoryError.message?.includes("factories_code_key")) {
+        return NextResponse.json(
+          { error: `Factory Code "${cleanCode}" is already in use by another estate. Please choose a unique code (e.g. ${cleanCode}-01).` },
+          { status: 400 }
+        );
+      }
       return NextResponse.json({ error: factoryError.message }, { status: 400 });
     }
 
