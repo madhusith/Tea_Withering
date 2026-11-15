@@ -167,10 +167,20 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           const timeLabel = formatTime(newReading.captured_at || new Date().toISOString());
           setLastHeartbeat(timeLabel);
 
+          const DEVICE_MAP: Record<string, string> = {
+            "44444444-4444-4444-4444-000000000001": "TR-001",
+            "44444444-4444-4444-4444-000000000002": "TR-002",
+            "44444444-4444-4444-4444-000000000003": "TR-003",
+            "44444444-4444-4444-4444-000000000004": "TR-004",
+            "44444444-4444-4444-4444-000000000005": "DR-001",
+          };
+
+          const matchedCode = DEVICE_MAP[newReading.device_id] || newReading.device_code;
+
           if (newReading.temp_dry !== null && newReading.temp_wet !== null) {
             setTroughs((prev) =>
               prev.map((t) => {
-                if (t.id === newReading.device_id || t.device_code === newReading.device_code) {
+                if (t.id === newReading.device_id || t.device_code === matchedCode) {
                   const delta = newReading.delta ?? Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
                   const isWarn = delta > 4.8 || delta < 3.5;
                   return {
@@ -190,7 +200,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
           if (newReading.temperature !== null) {
             setDryer((prev) => {
-              if (prev.id === newReading.device_id || prev.device_code === newReading.device_code) {
+              if (prev.id === newReading.device_id || prev.device_code === matchedCode) {
                 const temp = newReading.temperature;
                 return {
                   ...prev,
