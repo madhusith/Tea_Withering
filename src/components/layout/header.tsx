@@ -118,67 +118,68 @@ export function Header({
     >
       {/* Left: Dynamic Multi-Factory Switcher */}
       <div className="flex items-center gap-4">
-        <div className="relative" ref={factoryMenuRef}>
-          <button
-            type="button"
-            onClick={() => setFactoryMenuOpen(!factoryMenuOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#0b3c5d] font-semibold text-[13px] transition-colors hover:bg-blue-100/60 cursor-pointer"
-            style={{
-              background: "rgb(240, 247, 255)",
-              border: "1px solid rgb(191, 219, 254)",
-            }}
-          >
-            <Building2 className="w-4 h-4 text-[#1e40af]" />
-            <span>{currentFactory?.name || "St. Clair Tea Estate"}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-          </button>
+        {isAdmin ? (
+          /* Admin can see all factories and switch */
+          <div className="relative" ref={factoryMenuRef}>
+            <button
+              type="button"
+              onClick={() => setFactoryMenuOpen(!factoryMenuOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#0b3c5d] font-semibold text-[13px] transition-colors hover:bg-blue-100/60 cursor-pointer"
+              style={{
+                background: "rgb(240, 247, 255)",
+                border: "1px solid rgb(191, 219, 254)",
+              }}
+            >
+              <Building2 className="w-4 h-4 text-[#1e40af]" />
+              <span>{currentFactory?.name || "St. Clair Tea Estate"}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+            </button>
 
-          {/* Factory Selector Dropdown */}
-          {factoryMenuOpen && (
-            <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-[12px]">
-              <div className="px-4 py-1.5 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Select Estate Factory
-                </span>
-                <span className="text-[10px] font-semibold text-slate-500">
-                  {factories.length} Registered
-                </span>
-              </div>
+            {/* Factory Selector Dropdown */}
+            {factoryMenuOpen && (
+              <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-[12px]">
+                <div className="px-4 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Select Estate Factory
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500">
+                    {factories.length} Registered
+                  </span>
+                </div>
 
-              <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50">
-                {factories.map((f) => {
-                  const isSelected = f.id === currentFactory?.id;
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => {
-                        switchFactory(f.id);
-                        setFactoryMenuOpen(false);
-                        toast.info(`Switched active factory to ${f.name}`);
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
-                    >
-                      <div className="flex flex-col min-w-0 pr-2">
-                        <span
-                          className={`font-bold text-[13px] truncate ${
-                            isSelected ? "text-[#0284c7]" : "text-[#012d1d]"
-                          }`}
-                        >
-                          {f.name}
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {f.code} • {f.location || "Central Highlands"}
-                        </span>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-[#0284c7] shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
+                <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50">
+                  {factories.map((f) => {
+                    const isSelected = f.id === currentFactory?.id;
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => {
+                          switchFactory(f.id);
+                          setFactoryMenuOpen(false);
+                          toast.info(`Switched active factory to ${f.name}`);
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                      >
+                        <div className="flex flex-col min-w-0 pr-2">
+                          <span
+                            className={`font-bold text-[13px] truncate ${
+                              isSelected ? "text-[#0284c7]" : "text-[#012d1d]"
+                            }`}
+                          >
+                            {f.name}
+                          </span>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {f.code} • {f.location || "Central Highlands"}
+                          </span>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-[#0284c7] shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
 
-              {/* Admin "Factory Management" Direct Link */}
-              {isAdmin && (
+                {/* Admin "Factory Management" Direct Link */}
                 <div className="pt-1.5 border-t border-slate-100 px-2">
                   <Link
                     href="/factories"
@@ -189,10 +190,26 @@ export function Header({
                     <span>Manage &amp; Register Factories →</span>
                   </Link>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Managers and Viewers are strictly locked to their assigned factory */
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#0b3c5d] font-semibold text-[13px] select-none"
+            style={{
+              background: "rgb(248, 250, 252)",
+              border: "1px solid rgb(226, 232, 240)",
+            }}
+            title="Assigned Factory (Managers and Viewers cannot switch factories)"
+          >
+            <Building2 className="w-4 h-4 text-slate-500" />
+            <span>{currentFactory?.name || profile?.factory_name || "St. Clair Tea Estate"}</span>
+            <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded ml-1">
+              Assigned
+            </span>
+          </div>
+        )}
 
         <span className="hidden sm:inline text-[12px] text-slate-500 font-medium">
           {currentFactory?.location || divisionName}

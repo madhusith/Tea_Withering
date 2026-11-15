@@ -24,6 +24,7 @@ const defaultProfile: UserProfile = {
   full_name: "Rohan P. (Factory Manager)",
   email: "manager@kelanivalley.com",
   role: "manager",
+  factory_id: "22222222-2222-2222-2222-222222222222",
   factory_name: "St. Clair Tea Estate",
   status: "active",
   created_at: new Date().toISOString(),
@@ -66,12 +67,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         supabaseUser.email?.split("@")[0] ||
         "Factory User";
 
+      const factoryId =
+        memberData?.factory_id ||
+        supabaseUser.user_metadata?.factory_id ||
+        "22222222-2222-2222-2222-222222222222";
+
+      const factoryName =
+        memberData?.factories?.name ||
+        supabaseUser.user_metadata?.factory_name ||
+        "St. Clair Tea Estate";
+
       setProfile({
         id: supabaseUser.id,
         full_name: fullName,
         email: supabaseUser.email || "",
         role: role,
-        factory_name: memberData?.factories?.name || "St. Clair Tea Estate",
+        factory_id: factoryId,
+        factory_name: factoryName,
         status: "active",
         created_at: supabaseUser.created_at || new Date().toISOString(),
       });
@@ -82,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         full_name: supabaseUser.user_metadata?.full_name || "Factory Manager",
         email: supabaseUser.email || "manager@kelanivalley.com",
         role: (supabaseUser.user_metadata?.role as UserRole) || "manager",
+        factory_id: "22222222-2222-2222-2222-222222222222",
         factory_name: "St. Clair Tea Estate",
         status: "active",
         created_at: new Date().toISOString(),

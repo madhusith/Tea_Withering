@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { createClient } from "@/lib/supabase/client";
 import { mockTroughs as initialTroughs, mockDryer as initialDryer, mockAlerts as initialAlerts } from "@/lib/mock-data";
 import { TroughDevice, DryerDevice, Alert } from "@/types";
+import { useAuth } from "@/context/auth-context";
 
 export interface FactoryItem {
   id: string;
@@ -45,6 +46,8 @@ const defaultFactory: FactoryItem = {
 const TelemetryContext = createContext<TelemetryContextType | null>(null);
 
 export function TelemetryProvider({ children }: { children: React.ReactNode }) {
+  const { isAdmin, profile } = useAuth();
+
   const [factories, setFactories] = useState<FactoryItem[]>([defaultFactory]);
   const [currentFactory, setCurrentFactory] = useState<FactoryItem>(defaultFactory);
   const currentFactoryRef = useRef<FactoryItem>(defaultFactory);
@@ -78,7 +81,9 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     try {
-      // 1. Fetch available factories from Admin API to bypass RLS issues
+      const assignedFactoryId = profile?.factory_id || "22222222-2222-2222-2222-222222222222";
+
+      // 1. Fetch available factories from Admin API
       let fetchedFactories: FactoryItem[] = [];
       try {
         const res = await fetch("/api/factories");
@@ -110,26 +115,43 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Merge factories into state so newly registered factories are never wiped
-      if (fetchedFactories.length > 0) {
-        setFactories((prev) => {
-          const map = new Map<string, FactoryItem>();
-          prev.forEach((f) => map.set(f.id, f));
-          fetchedFactories.forEach((f) => map.set(f.id, f));
-          return Array.from(map.values());
-        });
+      // STRICT MULTI-TENANT RBAC ENFORCEMENT:
+      // Non-admins (Managers and Viewers) can NEVER see or switch to other factories!
+      if (!isAdmin) {
+        fetchedFactories = fetchedFactories.filter((f) => f.id === assignedFactoryId);
+        if (fetchedFactories.length === 0) {
+          fetchedFactories = [
+            {
+              id: assignedFactoryId,
+              name: profile?.factory_name || "St. Clair Tea Estate",
+              code: "STC-01",
+              location: "Assigned Estate",
+            },
+          ];
+        }
+        setFactories(fetchedFactories);
+      } else {
+        // Admins see all registered factories across the organization
+        if (fetchedFactories.length > 0) {
+          setFactories((prev) => {
+            const map = new Map<string, FactoryItem>();
+            prev.forEach((f) => map.set(f.id, f));
+            fetchedFactories.forEach((f) => map.set(f.id, f));
+            return Array.from(map.values());
+          });
+        }
       }
 
-      // Determine active factory
+      // Determine active factory:
+      // Non-admins are ALWAYS locked to their assigned factory!
       const savedFactoryId =
         typeof window !== "undefined"
           ? localStorage.getItem("ceylon_selected_factory_id")
           : null;
 
-      const activeFactoryId =
-        targetFactoryId ||
-        savedFactoryId ||
-        currentFactoryRef.current.id;
+      const activeFactoryId = isAdmin
+        ? (targetFactoryId || savedFactoryId || currentFactoryRef.current.id)
+        : assignedFactoryId;
 
       // Sync active factory object
       const allKnownFactories = fetchedFactories.length > 0 ? fetchedFactories : factories;
@@ -367,7 +389,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadInitialData]);
+  }, [loadInitialData, isAdmin, profile?.factory_id]);
 
   const refreshTelemetry = useCallback(async () => {
     await loadInitialData(currentFactoryRef.current.id);
@@ -456,6 +478,12 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
   const switchFactory = useCallback(
     async (factoryId: string) => {
+      // Non-admins can never switch factories
+      if (!isAdmin) {
+        console.warn("Access Denied: Managers and Viewers cannot switch factories.");
+        return;
+      }
+
       const match = factories.find((f) => f.id === factoryId);
       if (match) {
         setCurrentFactory(match);
@@ -466,7 +494,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         await loadInitialData(match.id);
       }
     },
-    [factories, loadInitialData]
+    [factories, loadInitialData, isAdmin]
   );
 
   const createFactory = useCallback(
@@ -477,6 +505,10 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       gateway_serial?: string;
       trough_count?: number;
     }) => {
+      if (!isAdmin) {
+        return { success: false, error: "Access Denied: Only Estate Administrators can create factories." };
+      }
+
       try {
         const res = await fetch("/api/factories", {
           method: "POST",
@@ -515,7 +547,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: err.message || "Network error" };
       }
     },
-    [loadInitialData]
+    [loadInitialData, isAdmin]
   );
 
   const activeAlertsCount = alerts.filter((a) => a.status === "active").length;
