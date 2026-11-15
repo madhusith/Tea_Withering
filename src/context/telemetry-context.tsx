@@ -282,13 +282,13 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.warn("Using offline fallback for telemetry:", err);
     }
-  }, [factories]);
+  }, []);
 
   useEffect(() => {
     loadInitialData();
 
     const supabase = createClient();
-    const channelId = `telemetry-stream-${Date.now()}`;
+    const channelId = `telemetry-stream-main`;
     const channel = supabase
       .channel(channelId)
       .on(
@@ -357,7 +357,11 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         }
       )
       .subscribe((status) => {
-        setIsConnected(status === "SUBSCRIBED");
+        if (status === "SUBSCRIBED") {
+          setIsConnected(true);
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setIsConnected(false);
+        }
       });
 
     return () => {
