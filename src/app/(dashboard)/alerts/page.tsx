@@ -14,10 +14,12 @@ import {
   RotateCw,
 } from "lucide-react";
 import { useTelemetryRealtime } from "@/context/telemetry-context";
+import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 
 export default function AlertsPage() {
   const { alerts, updateAlarmState, refreshTelemetry } = useTelemetryRealtime();
+  const { isViewer } = useAuth();
   const [filter, setFilter] = useState<"all" | "active" | "snoozed" | "resolved">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -96,14 +98,16 @@ export default function AlertsPage() {
             <RotateCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>Sync</span>
           </button>
-          <button
-            type="button"
-            onClick={handleAcknowledgeAll}
-            className="px-4 py-2 rounded-lg bg-white shadow-xs hover:bg-slate-50 text-slate-700 font-semibold text-[13px] flex items-center gap-2 border border-slate-200 transition-colors cursor-pointer"
-          >
-            <CheckCheck className="w-4 h-4 text-slate-500" />
-            <span>Acknowledge All</span>
-          </button>
+          {!isViewer && (
+            <button
+              type="button"
+              onClick={handleAcknowledgeAll}
+              className="px-4 py-2 rounded-lg bg-white shadow-xs hover:bg-slate-50 text-slate-700 font-semibold text-[13px] flex items-center gap-2 border border-slate-200 transition-colors cursor-pointer"
+            >
+              <CheckCheck className="w-4 h-4 text-slate-500" />
+              <span>Acknowledge All</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -284,7 +288,11 @@ export default function AlertsPage() {
                     )}
                   </td>
                   <td className="py-4 px-6 text-right">
-                    {alert.status === "active" ? (
+                    {isViewer ? (
+                      <span className="text-[11px] text-slate-400 font-medium italic">
+                        View only
+                      </span>
+                    ) : alert.status === "active" ? (
                       <div className="inline-flex items-center gap-2 justify-end">
                         <button
                           type="button"

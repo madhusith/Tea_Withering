@@ -18,9 +18,11 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { mockParameters } from "@/lib/mock-data";
+import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 
 export default function SystemParametersPage() {
+  const { isViewer } = useAuth();
   const [minDepression, setMinDepression] = useState(mockParameters.min_depression);
   const [maxDepression, setMaxDepression] = useState(mockParameters.max_depression);
   const [dryMin, setDryMin] = useState(mockParameters.ambient_dry_min);
@@ -101,6 +103,14 @@ export default function SystemParametersPage() {
             Configure operational alarm envelopes and target baseline thresholds across withering bays and the biomass heating unit.
           </p>
         </div>
+        {isViewer && (
+          <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl text-[12px] text-[#0369a1] font-semibold flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#0284c7] shrink-0" />
+            <span>
+              Viewer Access: Operating thresholds are read-only. Factory Manager or Estate Admin role required to modify parameters.
+            </span>
+          </div>
+        )}
         <div className="flex items-center gap-2 text-slate-500 text-[12px] bg-slate-100 px-3 py-1.5 rounded-lg self-start md:self-auto">
           <Clock className="w-4 h-4 text-slate-400" />
           <span>
@@ -392,7 +402,8 @@ export default function SystemParametersPage() {
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-[13px] font-semibold border border-slate-200 transition-colors cursor-pointer"
+            disabled={isViewer}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-[13px] font-semibold border border-slate-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-4 h-4 text-slate-400" />
             <span>Reset to Default</span>
@@ -407,11 +418,11 @@ export default function SystemParametersPage() {
             </Link>
             <button
               type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1b4332] to-[#116c4a] text-white text-[13px] font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer disabled:opacity-80"
+              disabled={saving || isViewer}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1b4332] to-[#116c4a] text-white text-[13px] font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
-              <span>{saving ? "Saving..." : "Save Changes"}</span>
+              <span>{saving ? "Saving..." : isViewer ? "Read Only (Viewer)" : "Save Changes"}</span>
             </button>
           </div>
         </div>

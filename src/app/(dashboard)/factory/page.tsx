@@ -14,10 +14,12 @@ import {
   Radio,
 } from "lucide-react";
 import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
+import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 
 export default function FactoryMonitoringPage() {
   const { troughs, lastHeartbeat, isConnected, addTrough, removeTrough } = useTelemetryRealtime();
+  const { isViewer } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deviceCode, setDeviceCode] = useState("");
@@ -104,14 +106,16 @@ export default function FactoryMonitoringPage() {
 
         {/* Action Button & Operational Pills */}
         <div className="flex items-center flex-wrap gap-2.5">
-          <button
-            type="button"
-            onClick={handleOpenAddModal}
-            className="px-3.5 py-1.5 rounded-lg bg-[#116c4a] text-white hover:bg-[#0c4e35] text-[12px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Trough</span>
-          </button>
+          {!isViewer && (
+            <button
+              type="button"
+              onClick={handleOpenAddModal}
+              className="px-3.5 py-1.5 rounded-lg bg-[#116c4a] text-white hover:bg-[#0c4e35] text-[12px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Trough</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
@@ -165,15 +169,17 @@ export default function FactoryMonitoringPage() {
                     >
                       {isWarning ? "Attention" : "Optimal"}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(trough.id, trough.name)}
-                      disabled={deletingId === trough.id}
-                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-opacity p-1 rounded cursor-pointer"
-                      title="Decommission trough"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {!isViewer && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(trough.id, trough.name)}
+                        disabled={deletingId === trough.id}
+                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-opacity p-1 rounded cursor-pointer"
+                        title="Decommission trough"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
 

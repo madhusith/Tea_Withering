@@ -2,22 +2,68 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShieldCheck,
+  Building2,
+  Eye as ViewerIcon,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("manager@kelanivalley.com");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("Password123!");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error || "Authentication failed.");
+        toast.error(data.error || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      toast.success(`Signed in as ${data.profile?.full_name || email}`);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Network error");
+      toast.error("Network error during login");
       setLoading(false);
-      window.location.href = "/dashboard";
-    }, 1000);
+    }
+  };
+
+  const handleSelectDemoRole = (role: "admin" | "manager" | "viewer") => {
+    if (role === "admin") {
+      setEmail("admin@kelanivalley.com");
+      setPassword("Password123!");
+    } else if (role === "manager") {
+      setEmail("manager@kelanivalley.com");
+      setPassword("Password123!");
+    } else {
+      setEmail("viewer@kelanivalley.com");
+      setPassword("Password123!");
+    }
   };
 
   return (
@@ -39,19 +85,72 @@ export default function LoginPage() {
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/70 mb-3 text-[#0a369d] text-[11px] font-semibold tracking-wider uppercase">
               <span className="w-2 h-2 rounded-full bg-[#116c4a]" />
-              Tea Withering Monitoring System
+              Tea Withering &amp; Drying Monitoring
             </div>
 
             <h1 className="text-2xl font-bold text-[#012d1d] tracking-tight">
-              Welcome Back
+              Estate Portal Login
             </h1>
             <p className="text-[13px] text-slate-500 mt-1 max-w-xs">
-              Sign in to monitor trough batch operations and estate telemetry.
+              Sign in to monitor trough batch operations, heating bay, and real-time factory telemetry.
             </p>
           </div>
 
+          {/* Quick Demo Role Selector */}
+          <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">
+              Quick Switch Demo Role
+            </span>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleSelectDemoRole("admin")}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
+                  email.startsWith("admin")
+                    ? "bg-[#012d1d] text-white border-[#012d1d]"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Admin</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectDemoRole("manager")}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
+                  email.startsWith("manager")
+                    ? "bg-[#116c4a] text-white border-[#116c4a]"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Manager</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectDemoRole("viewer")}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
+                  email.startsWith("viewer")
+                    ? "bg-[#0284c7] text-white border-[#0284c7]"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+                }`}
+              >
+                <ViewerIcon className="w-3.5 h-3.5" />
+                <span>Viewer</span>
+              </button>
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[12px] font-medium">
+              {errorMsg}
+            </div>
+          )}
+
           {/* Credentials Form */}
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
             {/* Email Field */}
             <div className="flex flex-col space-y-1.5 text-left">
               <label
@@ -60,17 +159,17 @@ export default function LoginPage() {
               >
                 Email Address
               </label>
-              <div className="relative flex items-center">
-                <Mail className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <div className="relative">
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="manager@kelanivalley.com"
+                  placeholder="name@kelanivalley.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#116c4a]/20 focus:border-[#116c4a] transition-all"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#eff4ff] text-[#0b1c30] placeholder:text-slate-400 text-[14px] transition-all outline-none focus:bg-white focus:ring-2 focus:ring-[#0284c7]/40 focus:border-[#0284c7] border border-transparent"
                 />
+                <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               </div>
             </div>
 
@@ -82,22 +181,21 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#116c4a]/20 focus:border-[#116c4a] transition-all"
                   required
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-[#eff4ff] text-[#0b1c30] placeholder:text-slate-400 text-[14px] transition-all outline-none focus:bg-white focus:ring-2 focus:ring-[#0284c7]/40 focus:border-[#0284c7] border border-transparent"
                 />
+                <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 p-1 text-slate-400 hover:text-slate-700 transition-colors"
-                  aria-label="Toggle password visibility"
+                  className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -108,44 +206,37 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Controls: Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded bg-slate-100 text-[#1b4332] accent-[#1b4332] cursor-pointer"
-                />
-                <span className="text-[12px] text-slate-600">Remember Me</span>
-              </label>
-              <Link
-                href="#forgot-password"
-                className="text-[12px] text-[#0a369d] hover:text-[#0284c7] font-semibold transition-colors"
-              >
-                Forgot Password?
-              </Link>
-            </div>
-
-            {/* Primary Action Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0a369d] via-[#1e3a8a] to-[#0a369d] hover:from-[#1e40af] hover:to-[#1d4ed8] text-white font-semibold text-[14px] tracking-wide shadow-md hover:shadow-lg active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-80"
-              >
-                {loading ? (
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 px-4 rounded-lg text-white font-semibold text-[14px] flex items-center justify-center gap-2 shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-70 mt-2"
+              style={{
+                background: "linear-gradient(135deg, rgb(17, 108, 74) 0%, rgb(1, 45, 29) 100%)",
+              }}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Authenticating...</span>
-                ) : (
-                  <>
-                    <span>Login to Console</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </form>
+
+          {/* Footer Meta */}
+          <div className="mt-8 pt-5 border-t border-slate-100 text-center">
+            <span className="text-[11px] text-slate-400 block">
+              St. Clair Tea Estate • Div. No. 03 • Industrial IoT Node
+            </span>
+          </div>
         </div>
       </div>
     </main>
   );
 }
-

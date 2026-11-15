@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import { mockUsers } from "@/lib/mock-data";
 import { UserProfile, UserRole } from "@/types";
+import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 
 export default function UserManagementPage() {
+  const { isAdmin, role } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>(mockUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -46,6 +48,10 @@ export default function UserManagementPage() {
   });
 
   const handleToggleStatus = (id: string) => {
+    if (!isAdmin) {
+      toast.error("Only Estate Admins can change user account status.");
+      return;
+    }
     setUsers((prev) =>
       prev.map((u) =>
         u.id === id
@@ -141,6 +147,21 @@ export default function UserManagementPage() {
         </div>
       </div>
 
+      {/* Administrator Permission Banner */}
+      {!isAdmin && (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-amber-900 text-[13px]">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-amber-700 shrink-0" />
+            <div>
+              <p className="font-bold">Estate Administrator Privileges Required</p>
+              <p className="text-[12px] text-amber-800">
+                You are currently signed in as a <span className="font-bold capitalize">{role}</span>. Modification of user profiles, role assignments, and tenant bindings is restricted to Estate Admins.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filter / Action Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white rounded-xl shadow-xs border border-slate-200">
         <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -180,17 +201,19 @@ export default function UserManagementPage() {
           </select>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm cursor-pointer"
-          style={{
-            background: "linear-gradient(135deg, #0b3c5d 0%, #1b4332 100%)",
-          }}
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Add User</span>
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm cursor-pointer"
+            style={{
+              background: "linear-gradient(135deg, #0b3c5d 0%, #1b4332 100%)",
+            }}
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Add User</span>
+          </button>
+        )}
       </div>
 
       {/* Users Table */}
