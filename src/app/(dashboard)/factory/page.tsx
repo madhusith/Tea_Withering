@@ -1,24 +1,25 @@
+"use client";
+
 import Link from "next/link";
 import {
   Factory,
   ArrowRight,
   CheckCircle2,
   AlertTriangle,
-  Wifi,
-  Sliders,
-  BarChart3,
   Layers,
 } from "lucide-react";
-import { mockTroughs } from "@/lib/mock-data";
-import { DepressionTargetBar } from "@/components/ui/depression-target-bar";
+import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
 
 export default function FactoryMonitoringPage() {
-  const normalCount = mockTroughs.filter((t) => t.status === "NORMAL").length;
-  const warningCount = mockTroughs.filter((t) => t.status === "WARNING").length;
+  const { troughs, lastHeartbeat, isConnected } = useTelemetryRealtime();
 
-  const avgDepression = (
-    mockTroughs.reduce((acc, t) => acc + t.delta, 0) / mockTroughs.length
-  ).toFixed(1);
+  const normalCount = troughs.filter((t) => t.status === "NORMAL").length;
+  const warningCount = troughs.filter((t) => t.status === "WARNING").length;
+
+  const avgDepression =
+    troughs.length > 0
+      ? (troughs.reduce((acc, t) => acc + t.delta, 0) / troughs.length).toFixed(1)
+      : "4.2";
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -26,7 +27,11 @@ export default function FactoryMonitoringPage() {
       <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-[#116c4a] animate-pulse" />
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isConnected ? "bg-[#116c4a] animate-pulse" : "bg-amber-600"
+              }`}
+            />
             <span className="text-[11px] uppercase tracking-wider text-[#116c4a] font-bold">
               Factory Monitoring • Withering Hall
             </span>
@@ -35,7 +40,7 @@ export default function FactoryMonitoringPage() {
             Trough Telemetry Matrix
           </h1>
           <p className="text-[13px] text-slate-500 mt-0.5">
-            Real-time dry bulb, wet bulb &amp; hygrometric depression (ΔT) across all active troughs
+            Real-time dry bulb, wet bulb &amp; hygrometric depression (ΔT) • Updated {lastHeartbeat}
           </p>
         </div>
 
@@ -59,9 +64,9 @@ export default function FactoryMonitoringPage() {
 
       {/* 2. Troughs Grid: Compact, simple cards for all bays */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {mockTroughs.map((trough) => {
+        {troughs.map((trough) => {
           const isWarning =
-            trough.status === "WARNING" || trough.delta > 5.0 || trough.delta < 3.0;
+            trough.status === "WARNING" || trough.delta > 4.8 || trough.delta < 3.5;
 
           return (
             <div
@@ -183,7 +188,7 @@ export default function FactoryMonitoringPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {mockTroughs.map((t) => {
+              {troughs.map((t) => {
                 const inBand = t.delta >= 3.5 && t.delta <= 4.8;
                 return (
                   <tr key={t.device_code} className="hover:bg-slate-50/60 transition-colors">
@@ -244,4 +249,3 @@ export default function FactoryMonitoringPage() {
     </div>
   );
 }
-

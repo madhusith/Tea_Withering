@@ -7,8 +7,8 @@ import {
   Bell,
   User,
   ArrowUpDown,
-  Radio,
 } from "lucide-react";
+import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
 
 interface HeaderProps {
   currentFactoryName?: string;
@@ -23,6 +23,8 @@ export function Header({
   userName = "Rohan P.",
   userRole = "Factory Manager",
 }: HeaderProps) {
+  const { activeAlertsCount, isConnected } = useTelemetryRealtime();
+
   return (
     <header
       className="fixed top-0 left-64 right-0 h-16 z-40 px-6 sm:px-8 flex items-center justify-between backdrop-blur-md"
@@ -54,19 +56,31 @@ export function Header({
       {/* Right: Live Telemetry, Notifications & User Info */}
       <div className="flex items-center gap-4">
         {/* Live Telemetry Pill */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#e0f2fe] text-[#0369a1] text-[12px] font-semibold">
-          <span className="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse" />
-          <span>Live Telemetry</span>
+        <div
+          className={`flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold ${
+            isConnected ? "bg-[#e0f2fe] text-[#0369a1]" : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isConnected ? "bg-[#0284c7] animate-pulse" : "bg-amber-600"
+            }`}
+          />
+          <span>{isConnected ? "Live Telemetry" : "Reconnecting"}</span>
         </div>
 
-        {/* Notifications Icon */}
+        {/* Notifications Icon with Dynamic Badge */}
         <Link
           href="/alerts"
           className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-          title="Notifications"
+          title={`${activeAlertsCount} active alert(s)`}
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#dc2626]" />
+          {activeAlertsCount > 0 && (
+            <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#dc2626] text-white text-[10px] font-bold flex items-center justify-center animate-pulse shadow-xs">
+              {activeAlertsCount}
+            </span>
+          )}
         </Link>
 
         {/* Divider */}

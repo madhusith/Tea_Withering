@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Fan,
@@ -6,11 +8,13 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
-import { mockTroughs, mockDryer } from "@/lib/mock-data";
+import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
 
 export default function DashboardOverviewPage() {
-  const normalCount = mockTroughs.filter((t) => t.status === "NORMAL").length;
-  const warningCount = mockTroughs.filter((t) => t.status === "WARNING").length;
+  const { troughs, dryer, lastHeartbeat, isConnected } = useTelemetryRealtime();
+
+  const normalCount = troughs.filter((t) => t.status === "NORMAL").length;
+  const warningCount = troughs.filter((t) => t.status === "WARNING").length;
 
   return (
     <div className="flex flex-col gap-6 py-4">
@@ -18,16 +22,20 @@ export default function DashboardOverviewPage() {
       <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#116c4a] animate-ping opacity-75" />
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                isConnected ? "bg-[#116c4a] animate-ping opacity-75" : "bg-amber-600"
+              }`}
+            />
             <span className="text-[11px] uppercase tracking-wider text-[#116c4a] font-bold">
-              Trough Hall Active Cycle
+              Trough Hall Active Cycle • St. Clair Estate
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#012d1d] tracking-tight">
             Factory Overview
           </h1>
           <p className="text-[14px] text-slate-500 mt-0.5">
-            {mockTroughs.length} Withering Bays • Real-time Telemetry
+            {troughs.length} Withering Bays • Real-time Telemetry (Updated {lastHeartbeat})
           </p>
         </div>
 
@@ -67,15 +75,15 @@ export default function DashboardOverviewPage() {
             <div className="flex flex-col">
               <div className="flex items-center gap-2.5">
                 <h2 className="text-xl font-bold text-[#012d1d] tracking-tight">
-                  {mockDryer.name}
+                  {dryer.name}
                 </h2>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#e8f5e9] text-[#1b4332] text-[11px] font-bold">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#116c4a]" />
-                  {mockDryer.status}
+                  {dryer.status}
                 </span>
               </div>
               <span className="text-[13px] text-slate-500 mt-1">
-                {mockDryer.status_message}
+                {dryer.status_message}
               </span>
             </div>
           </div>
@@ -88,7 +96,7 @@ export default function DashboardOverviewPage() {
               </span>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-3xl font-bold text-[#012d1d] tabular-nums">
-                  {mockDryer.temperature}
+                  {dryer.temperature.toFixed(1)}
                 </span>
                 <span className="text-[14px] text-slate-500 font-medium">°C</span>
               </div>
@@ -102,14 +110,14 @@ export default function DashboardOverviewPage() {
               </span>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-3xl font-semibold text-slate-500 tabular-nums">
-                  {mockDryer.target_temperature}
+                  {dryer.target_temperature.toFixed(1)}
                 </span>
                 <span className="text-[14px] text-slate-400 font-medium">°C</span>
               </div>
             </div>
 
             <Link
-              href={`/dryers/${mockDryer.device_code}`}
+              href={`/dryers/${dryer.device_code}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm ml-auto sm:ml-0"
               style={{
                 background:
@@ -133,15 +141,15 @@ export default function DashboardOverviewPage() {
           </h3>
         </div>
         <span className="text-[12px] text-slate-400">
-          Sorted by Bay Code ({mockTroughs[0]?.device_code}–
-          {mockTroughs[mockTroughs.length - 1]?.device_code})
+          Real-time LoRa stream • {troughs.length} Bays Active
         </span>
       </div>
 
       {/* Withering Troughs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {mockTroughs.map((trough) => {
-          const isWarning = trough.status === "WARNING" || trough.delta > 5.0 || trough.delta < 3.0;
+        {troughs.map((trough) => {
+          const isWarning =
+            trough.status === "WARNING" || trough.delta > 4.8 || trough.delta < 3.5;
 
           return (
             <div
@@ -171,75 +179,61 @@ export default function DashboardOverviewPage() {
                   <div className="p-2.5 rounded-lg bg-[#eff4ff]">
                     <span className="text-[11px] text-slate-500 block">Dry Bulb</span>
                     <span className="text-[16px] font-bold text-[#0b1c30] tabular-nums">
-                      {trough.temp_dry}°C
+                      {trough.temp_dry.toFixed(1)}°C
                     </span>
                   </div>
                   <div className="p-2.5 rounded-lg bg-[#eff4ff]">
                     <span className="text-[11px] text-slate-500 block">Wet Bulb</span>
                     <span className="text-[16px] font-bold text-[#0b1c30] tabular-nums">
-                      {trough.temp_wet}°C
+                      {trough.temp_wet.toFixed(1)}°C
                     </span>
                   </div>
                 </div>
 
-                {/* Highlighted Depression Value (ΔT = Dry - Wet) */}
+                {/* Featured Metric: Calculated Wet-Bulb Depression (ΔT = Dry - Wet) */}
                 <div
-                  className={`rounded-lg p-3 flex items-center justify-between mb-4 ${
+                  className={`p-3 rounded-lg border flex flex-col gap-1 ${
                     isWarning
-                      ? "bg-[#fee2e2]/60 border border-[#fecaca]"
-                      : "bg-[#c1ecd4]/30 border border-[#a5d0b9]/40"
+                      ? "bg-amber-50/60 border-amber-200"
+                      : "bg-[#f8f9ff] border-blue-100"
                   }`}
                 >
-                  <span
-                    className={`text-[12px] font-semibold ${
-                      isWarning ? "text-[#991b1b]" : "text-[#274e3d]"
-                    }`}
-                  >
-                    Difference
-                  </span>
-                  <span
-                    className={`text-xl font-bold tabular-nums ${
-                      isWarning ? "text-[#ba1a1a]" : "text-[#012d1d]"
-                    }`}
-                  >
-                    Δ {trough.delta}°C
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-wider font-bold text-[#0b3c5d]">
+                      Depression (ΔT)
+                    </span>
+                    <span className="text-[10px] text-slate-400">Target 3.5–4.8°C</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className={`text-2xl font-bold tabular-nums ${
+                        isWarning ? "text-amber-800" : "text-[#1b4332]"
+                      }`}
+                    >
+                      {trough.delta.toFixed(1)}°C
+                    </span>
+                    <span className="text-[11px] text-slate-500">Difference</span>
+                  </div>
                 </div>
               </div>
 
-              <Link
-                href={`/troughs/${trough.device_code}`}
-                className={`inline-flex items-center justify-between text-[13px] font-semibold pt-1 transition-colors ${
-                  isWarning
-                    ? "text-[#ba1a1a] hover:text-[#991b1b]"
-                    : "text-[#2563eb] hover:text-[#1d4ed8]"
-                }`}
-              >
-                <span>View Details</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              {/* Card Footer with Link */}
+              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">
+                  {trough.last_seen_at}
+                </span>
+                <Link
+                  href={`/troughs/${trough.device_code}`}
+                  className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#116c4a] hover:text-[#012d1d] group-hover:translate-x-0.5 transition-all"
+                >
+                  <span>Monitor Bay</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           );
         })}
       </div>
-
-      {/* Footer Status Note */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-slate-400 gap-3 text-[12px]">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#116c4a]" />
-          <span>
-            Showing {mockTroughs.length} of {mockTroughs.length} registered withering bays
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#116c4a]" />
-            <span className="text-slate-600 font-medium">Optimal: Δ 3.0°C – 5.0°C</span>
-          </div>
-          <div className="h-3 w-px bg-slate-200" />
-          <span>Telemetry sync: just now</span>
-        </div>
-      </footer>
     </div>
   );
 }
