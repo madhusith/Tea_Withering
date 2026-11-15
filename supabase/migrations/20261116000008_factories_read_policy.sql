@@ -13,3 +13,4 @@ CREATE POLICY "Anyone can view active factories"
 
 -- Grant select on factories to anon and authenticated
 GRANT SELECT ON factories TO anon, authenticated;
+
