@@ -474,3 +474,5 @@ export function useTelemetryRealtime() {
   }
   return context;
 }
+
+export const useTelemetry = useTelemetryRealtime;
