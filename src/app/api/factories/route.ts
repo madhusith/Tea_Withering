@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       .insert({
         factory_id: newFactory.id,
         serial_number: gwSerial,
-        name: `${cleanName} Master Gateway`,
+        firmware_version: "v1.2.0",
         status: "ONLINE",
       })
       .select()
@@ -161,3 +161,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
