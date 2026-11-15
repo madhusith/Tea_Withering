@@ -57,30 +57,32 @@ export function Sidebar() {
     },
   ];
 
-  // 2. System Config: Role-restricted (Hidden for Viewer, Admin gets Users, Manager gets Params & Reports)
+  // 2. System Config: Role-restricted
+  // User Management & Parameters: ADMIN ONLY
+  // Reports: Admin & Manager
   const systemConfigNav: NavItem[] = [];
 
   if (isAdmin) {
-    systemConfigNav.push({
-      label: "User Management",
-      href: "/users",
-      icon: Users,
-    });
-  }
-
-  if (isAdmin || isManager) {
     systemConfigNav.push(
+      {
+        label: "User Management",
+        href: "/users",
+        icon: Users,
+      },
       {
         label: "Parameters",
         href: "/parameters",
         icon: Sliders,
-      },
-      {
-        label: "Reports",
-        href: "/reports",
-        icon: FileText,
       }
     );
+  }
+
+  if (isAdmin || isManager) {
+    systemConfigNav.push({
+      label: "Reports",
+      href: "/reports",
+      icon: FileText,
+    });
   }
 
   return (

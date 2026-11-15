@@ -22,7 +22,7 @@ import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 
 export default function SystemParametersPage() {
-  const { isViewer } = useAuth();
+  const { isAdmin, role } = useAuth();
   const [minDepression, setMinDepression] = useState(mockParameters.min_depression);
   const [maxDepression, setMaxDepression] = useState(mockParameters.max_depression);
   const [dryMin, setDryMin] = useState(mockParameters.ambient_dry_min);
@@ -45,6 +45,10 @@ export default function SystemParametersPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      toast.error("Administrator privileges required to update parameters.");
+      return;
+    }
     setSaving(true);
     setDeliveryStatus("pending");
 
@@ -59,6 +63,7 @@ export default function SystemParametersPage() {
   };
 
   const handleReset = () => {
+    if (!isAdmin) return;
     setMinDepression(mockParameters.min_depression);
     setMaxDepression(mockParameters.max_depression);
     setDryMin(mockParameters.ambient_dry_min);
@@ -70,18 +75,18 @@ export default function SystemParametersPage() {
     toast.info("Parameters reset to factory baseline defaults.");
   };
 
-  if (isViewer) {
+  if (!isAdmin) {
     return (
       <div className="flex flex-col gap-6 py-12 max-w-2xl mx-auto items-center text-center">
-        <div className="w-16 h-16 rounded-2xl bg-sky-100 text-[#0284c7] flex items-center justify-center shadow-xs">
+        <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-xs">
           <ShieldCheck className="w-8 h-8" />
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-[#012d1d]">
-            Access Restricted: Viewers
+            Estate Administrator Privileges Required
           </h1>
           <p className="text-[14px] text-slate-500 max-w-md mx-auto">
-            System parameter tuning and threshold operating envelopes are restricted to Factory Managers and Estate Administrators. You are currently signed in as a <span className="font-bold capitalize text-slate-700">Viewer</span>.
+            Operating envelope threshold tuning and gateway sensor setpoint configurations are restricted strictly to Estate Administrators. You are currently signed in as a <span className="font-bold capitalize text-slate-700">{role}</span>.
           </p>
         </div>
         <Link
@@ -128,14 +133,6 @@ export default function SystemParametersPage() {
             Configure operational alarm envelopes and target baseline thresholds across withering bays and the biomass heating unit.
           </p>
         </div>
-        {isViewer && (
-          <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl text-[12px] text-[#0369a1] font-semibold flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#0284c7] shrink-0" />
-            <span>
-              Viewer Access: Operating thresholds are read-only. Factory Manager or Estate Admin role required to modify parameters.
-            </span>
-          </div>
-        )}
         <div className="flex items-center gap-2 text-slate-500 text-[12px] bg-slate-100 px-3 py-1.5 rounded-lg self-start md:self-auto">
           <Clock className="w-4 h-4 text-slate-400" />
           <span>
@@ -427,8 +424,7 @@ export default function SystemParametersPage() {
           <button
             type="button"
             onClick={handleReset}
-            disabled={isViewer}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-[13px] font-semibold border border-slate-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-[13px] font-semibold border border-slate-200 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 text-slate-400" />
             <span>Reset to Default</span>
@@ -443,11 +439,11 @@ export default function SystemParametersPage() {
             </Link>
             <button
               type="submit"
-              disabled={saving || isViewer}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1b4332] to-[#116c4a] text-white text-[13px] font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1b4332] to-[#116c4a] text-white text-[13px] font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer disabled:opacity-80"
             >
               <Check className="w-4 h-4" />
-              <span>{saving ? "Saving..." : isViewer ? "Read Only (Viewer)" : "Save Changes"}</span>
+              <span>{saving ? "Saving..." : "Save Changes"}</span>
             </button>
           </div>
         </div>

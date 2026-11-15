@@ -72,19 +72,16 @@ export async function middleware(request: NextRequest) {
         ? "manager"
         : "viewer");
 
-    // Viewer is strictly permitted ONLY to: Dashboard, Factory Monitoring, Heating Bay, Alerts, Troughs
-    // Block Viewer from System Parameters, User Management, Reports
+    // Parameter Adjustment & User Management are strictly ADMIN ONLY
     if (
-      role === "viewer" &&
-      (pathname.startsWith("/parameters") ||
-        pathname.startsWith("/users") ||
-        pathname.startsWith("/reports"))
+      role !== "admin" &&
+      (pathname.startsWith("/parameters") || pathname.startsWith("/users"))
     ) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    // Manager is permitted to Parameters & Reports, but blocked from User Management (Admin only)
-    if (role === "manager" && pathname.startsWith("/users")) {
+    // Reports are for Admin & Manager only (blocked for Viewer)
+    if (role === "viewer" && pathname.startsWith("/reports")) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
