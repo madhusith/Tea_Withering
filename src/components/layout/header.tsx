@@ -11,9 +11,14 @@ import {
   LogOut,
   ShieldCheck,
   Check,
+  Plus,
+  MapPin,
+  X,
+  Radio,
 } from "lucide-react";
 import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
 import { useAuth } from "@/context/auth-context";
+import { toast } from "sonner";
 
 interface HeaderProps {
   currentFactoryName?: string;
@@ -21,23 +26,79 @@ interface HeaderProps {
 }
 
 export function Header({
-  currentFactoryName = "St. Clair Tea Estate",
   divisionName = "Div. No. 03 • Trough Hall B",
 }: HeaderProps) {
-  const { activeAlertsCount, isConnected } = useTelemetryRealtime();
-  const { profile, role, logout, switchDemoRole } = useAuth();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const {
+    activeAlertsCount,
+    isConnected,
+    factories,
+    currentFactory,
+    switchFactory,
+    createFactory,
+  } = useTelemetryRealtime();
+
+  const { profile, role, isAdmin, logout, switchDemoRole } = useAuth();
+
+  const [factoryMenuOpen, setFactoryMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isAddFactoryOpen, setIsAddFactoryOpen] = useState(false);
+
+  // New Factory Modal State
+  const [newFactoryName, setNewFactoryName] = useState("");
+  const [newFactoryCode, setNewFactoryCode] = useState("");
+  const [newFactoryLocation, setNewFactoryLocation] = useState("Nuwara Eliya, Elevation 1,890m");
+  const [newGatewaySerial, setNewGatewaySerial] = useState("");
+  const [initialTroughCount, setInitialTroughCount] = useState(4);
+  const [isSubmittingFactory, setIsSubmittingFactory] = useState(false);
+
+  const factoryMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
+      if (factoryMenuRef.current && !factoryMenuRef.current.contains(e.target as Node)) {
+        setFactoryMenuOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleOpenAddFactory = () => {
+    setFactoryMenuOpen(false);
+    setIsAddFactoryOpen(true);
+  };
+
+  const handleCreateFactorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFactoryName.trim() || !newFactoryCode.trim()) {
+      toast.error("Please fill in Factory Name and Code.");
+      return;
+    }
+
+    setIsSubmittingFactory(true);
+    const res = await createFactory({
+      name: newFactoryName.trim(),
+      code: newFactoryCode.trim().toUpperCase(),
+      location: newFactoryLocation.trim(),
+      gateway_serial: newGatewaySerial.trim() || undefined,
+      trough_count: initialTroughCount,
+    });
+    setIsSubmittingFactory(false);
+
+    if (res.success) {
+      toast.success(`Factory ${newFactoryName} registered with ${initialTroughCount} troughs.`);
+      setIsAddFactoryOpen(false);
+      setNewFactoryName("");
+      setNewFactoryCode("");
+      setNewGatewaySerial("");
+    } else {
+      toast.error(res.error || "Failed to create factory");
+    }
+  };
 
   const roleLabel =
     role === "admin"
@@ -55,22 +116,86 @@ export function Header({
         boxShadow: "0 2px 12px rgba(11, 60, 93, 0.05)",
       }}
     >
-      {/* Left: Factory Selector & Location */}
+      {/* Left: Dynamic Multi-Factory Switcher */}
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#0b3c5d] font-semibold text-[13px] transition-colors hover:bg-blue-100/60"
-          style={{
-            background: "rgb(240, 247, 255)",
-            border: "1px solid rgb(191, 219, 254)",
-          }}
-        >
-          <Building2 className="w-4 h-4 text-[#1e40af]" />
-          <span>{profile?.factory_name || currentFactoryName}</span>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-        </button>
+        <div className="relative" ref={factoryMenuRef}>
+          <button
+            type="button"
+            onClick={() => setFactoryMenuOpen(!factoryMenuOpen)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#0b3c5d] font-semibold text-[13px] transition-colors hover:bg-blue-100/60 cursor-pointer"
+            style={{
+              background: "rgb(240, 247, 255)",
+              border: "1px solid rgb(191, 219, 254)",
+            }}
+          >
+            <Building2 className="w-4 h-4 text-[#1e40af]" />
+            <span>{currentFactory?.name || "St. Clair Tea Estate"}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+          </button>
+
+          {/* Factory Selector Dropdown */}
+          {factoryMenuOpen && (
+            <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-[12px]">
+              <div className="px-4 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Select Estate Factory
+                </span>
+                <span className="text-[10px] font-semibold text-slate-500">
+                  {factories.length} Registered
+                </span>
+              </div>
+
+              <div className="max-h-56 overflow-y-auto py-1 divide-y divide-slate-50">
+                {factories.map((f) => {
+                  const isSelected = f.id === currentFactory?.id;
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => {
+                        switchFactory(f.id);
+                        setFactoryMenuOpen(false);
+                        toast.info(`Switched active factory to ${f.name}`);
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                      <div className="flex flex-col min-w-0 pr-2">
+                        <span
+                          className={`font-bold text-[13px] truncate ${
+                            isSelected ? "text-[#0284c7]" : "text-[#012d1d]"
+                          }`}
+                        >
+                          {f.name}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {f.code} • {f.location || "Central Highlands"}
+                        </span>
+                      </div>
+                      {isSelected && <Check className="w-4 h-4 text-[#0284c7] shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Admin "+ Add New Factory" Option */}
+              {isAdmin && (
+                <div className="pt-1.5 border-t border-slate-100 px-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenAddFactory}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#116c4a] font-bold text-[12px] transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Register New Factory</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <span className="hidden sm:inline text-[12px] text-slate-500 font-medium">
-          {divisionName}
+          {currentFactory?.location || divisionName}
         </span>
       </div>
 
@@ -108,10 +233,10 @@ export function Header({
         <div className="h-6 w-px bg-slate-200" />
 
         {/* User Profile & Role Popover */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={userMenuRef}>
           <button
             type="button"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
             className="flex items-center gap-3 pl-1 text-left cursor-pointer hover:opacity-85 transition-opacity"
           >
             <div className="hidden sm:flex flex-col items-end">
@@ -137,7 +262,7 @@ export function Header({
           </button>
 
           {/* User Popover Dropdown */}
-          {dropdownOpen && (
+          {userMenuOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-[12px]">
               {/* Profile Details */}
               <div className="px-4 py-2 border-b border-slate-100">
@@ -153,7 +278,7 @@ export function Header({
                 </div>
               </div>
 
-              {/* Quick Role Switcher for Testing */}
+              {/* Quick Role Switcher */}
               <div className="px-4 py-2 border-b border-slate-100">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                   Test Role Switcher
@@ -163,7 +288,7 @@ export function Header({
                     type="button"
                     onClick={() => {
                       switchDemoRole("admin");
-                      setDropdownOpen(false);
+                      setUserMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
@@ -174,7 +299,7 @@ export function Header({
                     type="button"
                     onClick={() => {
                       switchDemoRole("manager");
-                      setDropdownOpen(false);
+                      setUserMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
@@ -185,7 +310,7 @@ export function Header({
                     type="button"
                     onClick={() => {
                       switchDemoRole("viewer");
-                      setDropdownOpen(false);
+                      setUserMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
@@ -200,7 +325,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={() => {
-                    setDropdownOpen(false);
+                    setUserMenuOpen(false);
                     logout();
                   }}
                   className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 font-semibold cursor-pointer text-left transition-colors"
@@ -213,6 +338,131 @@ export function Header({
           )}
         </div>
       </div>
+
+      {/* Add New Factory Modal */}
+      {isAddFactoryOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl max-w-md w-full border border-slate-200">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#e0f2fe] text-[#0284c7] flex items-center justify-center font-bold">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#012d1d]">
+                    Register New Estate Factory
+                  </h3>
+                  <p className="text-[12px] text-slate-500">
+                    Provisions factory hierarchy, gateway &amp; initial withering bays
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddFactoryOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateFactorySubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                  Factory Name
+                </label>
+                <input
+                  type="text"
+                  value={newFactoryName}
+                  onChange={(e) => setNewFactoryName(e.target.value)}
+                  placeholder="e.g. Pedro Tea Estate"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:outline-none focus:border-[#0284c7]"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                    Factory Code
+                  </label>
+                  <input
+                    type="text"
+                    value={newFactoryCode}
+                    onChange={(e) => setNewFactoryCode(e.target.value)}
+                    placeholder="e.g. PED-01"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-[13px] focus:outline-none focus:border-[#0284c7]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                    Initial Troughs
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={initialTroughCount}
+                    onChange={(e) => setInitialTroughCount(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:outline-none focus:border-[#0284c7]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                  Location / Region / Elevation
+                </label>
+                <input
+                  type="text"
+                  value={newFactoryLocation}
+                  onChange={(e) => setNewFactoryLocation(e.target.value)}
+                  placeholder="e.g. Nuwara Eliya, Elevation 1,890m"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-[13px] focus:outline-none focus:border-[#0284c7]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-semibold text-slate-700 mb-1">
+                  LoRa Master Gateway Serial (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={newGatewaySerial}
+                  onChange={(e) => setNewGatewaySerial(e.target.value)}
+                  placeholder="Auto-generated if empty (e.g. GW-PED-01)"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-[13px] focus:outline-none focus:border-[#0284c7]"
+                />
+              </div>
+
+              <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-lg text-[11px] text-blue-900 flex items-start gap-2">
+                <Radio className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
+                <span>
+                  Automatic Hardware Provisioning: Creates the primary LoRa gateway, {initialTroughCount} withering troughs, and 1 biomass heating bay with baseline telemetry.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddFactoryOpen(false)}
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-[13px] font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingFactory}
+                  className="px-5 py-2 rounded-lg bg-[#0284c7] text-white text-[13px] font-semibold hover:bg-[#0369a1] shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  {isSubmittingFactory ? "Provisioning..." : "Provision Factory"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

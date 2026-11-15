@@ -5,6 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import { mockTroughs as initialTroughs, mockDryer as initialDryer, mockAlerts as initialAlerts } from "@/lib/mock-data";
 import { TroughDevice, DryerDevice, Alert } from "@/types";
 
+export interface FactoryItem {
+  id: string;
+  name: string;
+  code: string;
+  location?: string;
+}
+
 interface TelemetryContextType {
   troughs: TroughDevice[];
   dryer: DryerDevice;
@@ -12,15 +19,34 @@ interface TelemetryContextType {
   activeAlertsCount: number;
   lastHeartbeat: string;
   isConnected: boolean;
+  factories: FactoryItem[];
+  currentFactory: FactoryItem;
+  switchFactory: (factoryId: string) => Promise<void>;
+  createFactory: (data: {
+    name: string;
+    code: string;
+    location?: string;
+    gateway_serial?: string;
+    trough_count?: number;
+  }) => Promise<{ success: boolean; error?: string; factory?: any }>;
   refreshTelemetry: () => Promise<void>;
   updateAlarmState: (id: string, newState: "ACKNOWLEDGED" | "SNOOZED" | "CLEARED") => Promise<void>;
   addTrough: (code: string, name: string) => Promise<{ success: boolean; error?: string }>;
   removeTrough: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
+const defaultFactory: FactoryItem = {
+  id: "22222222-2222-2222-2222-222222222222",
+  name: "St. Clair Tea Estate",
+  code: "STC-01",
+  location: "Div. No. 03 • Trough Hall B",
+};
+
 const TelemetryContext = createContext<TelemetryContextType | null>(null);
 
 export function TelemetryProvider({ children }: { children: React.ReactNode }) {
+  const [factories, setFactories] = useState<FactoryItem[]>([defaultFactory]);
+  const [currentFactory, setCurrentFactory] = useState<FactoryItem>(defaultFactory);
   const [troughs, setTroughs] = useState<TroughDevice[]>(initialTroughs);
   const [dryer, setDryer] = useState<DryerDevice>(initialDryer);
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts);
@@ -41,20 +67,43 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loadInitialData = useCallback(async () => {
+  const loadInitialData = useCallback(async (targetFactoryId?: string) => {
     const supabase = createClient();
 
     try {
-      const { data: dbDevicesData } = await supabase
+      // 1. Fetch available factories
+      const { data: dbFactoriesData } = await (supabase
+        .from("factories") as any)
+        .select("id, name, code, location")
+        .eq("status", "ACTIVE")
+        .order("name", { ascending: true });
+
+      if (dbFactoriesData && dbFactoriesData.length > 0) {
+        setFactories(dbFactoriesData);
+      }
+
+      const activeFactoryId = targetFactoryId || currentFactory.id;
+
+      // 2. Fetch devices for active factory (fallback to all if no match)
+      let { data: dbDevicesData } = await supabase
         .from("devices")
-        .select("id, device_code, name, type, active")
+        .select("id, device_code, name, type, active, factory_id")
+        .eq("factory_id", activeFactoryId)
         .order("device_code", { ascending: true });
+
+      if (!dbDevicesData || dbDevicesData.length === 0) {
+        const fallback = await supabase
+          .from("devices")
+          .select("id, device_code, name, type, active, factory_id")
+          .order("device_code", { ascending: true });
+        dbDevicesData = fallback.data;
+      }
 
       const { data: dbReadingsData } = await supabase
         .from("readings")
         .select("*")
         .order("captured_at", { ascending: false })
-        .limit(20);
+        .limit(30);
 
       const { data: dbAlarmsData } = await (supabase
         .from("alarms") as any)
@@ -66,7 +115,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           triggered_at,
           trigger_value,
           alarm_rules ( metric, severity, min_value, max_value ),
-          devices ( device_code, name, type )
+          devices ( device_code, name, type, factory_id )
         `)
         .order("triggered_at", { ascending: false });
 
@@ -343,6 +392,55 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     [loadInitialData]
   );
 
+  const switchFactory = useCallback(
+    async (factoryId: string) => {
+      const found = factories.find((f) => f.id === factoryId);
+      if (found) {
+        setCurrentFactory(found);
+        await loadInitialData(found.id);
+      }
+    },
+    [factories, loadInitialData]
+  );
+
+  const createFactory = useCallback(
+    async (data: {
+      name: string;
+      code: string;
+      location?: string;
+      gateway_serial?: string;
+      trough_count?: number;
+    }) => {
+      try {
+        const res = await fetch("/api/factories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          return { success: false, error: result.error || "Failed to create factory" };
+        }
+
+        const newFactory: FactoryItem = {
+          id: result.factory.id,
+          name: result.factory.name,
+          code: result.factory.code,
+          location: result.factory.location,
+        };
+
+        setFactories((prev) => [...prev, newFactory]);
+        setCurrentFactory(newFactory);
+        await loadInitialData(newFactory.id);
+        return { success: true, factory: newFactory };
+      } catch (err: any) {
+        return { success: false, error: err.message || "Network error" };
+      }
+    },
+    [loadInitialData]
+  );
+
   const activeAlertsCount = alerts.filter((a) => a.status === "active").length;
 
   return (
@@ -354,6 +452,10 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         activeAlertsCount,
         lastHeartbeat,
         isConnected,
+        factories,
+        currentFactory,
+        switchFactory,
+        createFactory,
         refreshTelemetry: loadInitialData,
         updateAlarmState,
         addTrough,
