@@ -16,10 +16,12 @@ import {
 import { mockUsers } from "@/lib/mock-data";
 import { UserProfile, UserRole } from "@/types";
 import { useAuth } from "@/context/auth-context";
+import { useTelemetryRealtime } from "@/context/telemetry-context";
 import { toast } from "sonner";
 
 export default function UserManagementPage() {
   const { isAdmin, role } = useAuth();
+  const { factories } = useTelemetryRealtime();
   const [users, setUsers] = useState<UserProfile[]>(mockUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -30,7 +32,7 @@ export default function UserManagementPage() {
   const [fullName, setFullName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newRole, setNewRole] = useState<UserRole>("manager");
-  const [newFactory, setNewFactory] = useState("St. Clair - Central Estate");
+  const [newFactory, setNewFactory] = useState(factories[0]?.name || "St. Clair Tea Estate");
 
   const totalUsers = users.length;
   const adminCount = users.filter((u) => u.role === "admin").length;
@@ -229,7 +231,12 @@ export default function UserManagementPage() {
         {isAdmin && (
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              if (factories && factories.length > 0) {
+                setNewFactory(factories[0].name);
+              }
+              setIsModalOpen(true);
+            }}
             className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm cursor-pointer"
             style={{
               background: "linear-gradient(135deg, #0b3c5d 0%, #1b4332 100%)",
@@ -447,15 +454,17 @@ export default function UserManagementPage() {
                     onChange={(e) => setNewFactory(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 rounded-lg text-[13px] text-[#0b1c30] border border-slate-200 focus:outline-none focus:bg-white focus:border-[#0284c7] cursor-pointer"
                   >
-                    <option value="St. Clair - Central Estate">
-                      St. Clair - Central Estate
-                    </option>
-                    <option value="Dimbula Valley Estate">
-                      Dimbula Valley Estate
-                    </option>
-                    <option value="Nuwara Eliya Estate Div 01">
-                      Nuwara Eliya Estate Div 01
-                    </option>
+                    {factories && factories.length > 0 ? (
+                      factories.map((f) => (
+                        <option key={f.id} value={f.name}>
+                          {f.name} ({f.code})
+                        </option>
+                      ))
+                    ) : (
+                      <option value="St. Clair Tea Estate">
+                        St. Clair Tea Estate (STC-01)
+                      </option>
+                    )}
                   </select>
                 </div>
               )}
