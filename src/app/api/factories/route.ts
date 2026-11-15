@@ -162,3 +162,36 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = createAdminClient();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Factory id is required" }, { status: 400 });
+    }
+
+    // Do not delete default St. Clair factory
+    if (id === "22222222-2222-2222-2222-222222222222") {
+      return NextResponse.json(
+        { error: "Cannot delete the default central estate (St. Clair Tea Estate)." },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await (supabase.from("factories") as any)
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, message: "Factory removed successfully" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to remove factory" }, { status: 500 });
+  }
+}
+
+

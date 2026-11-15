@@ -13,6 +13,7 @@ import {
   Radio,
   Sprout,
   ShieldAlert,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTelemetryRealtime } from "@/context/telemetry-context";
@@ -58,7 +59,7 @@ export function Sidebar() {
   ];
 
   // 2. System Config: Role-restricted
-  // User Management & Parameters: ADMIN ONLY
+  // User Management, Factory Management & Parameters: ADMIN ONLY
   // Reports: Admin & Manager
   const systemConfigNav: NavItem[] = [];
 
@@ -68,6 +69,11 @@ export function Sidebar() {
         label: "User Management",
         href: "/users",
         icon: Users,
+      },
+      {
+        label: "Factory Management",
+        href: "/factories",
+        icon: Building2,
       },
       {
         label: "Parameters",

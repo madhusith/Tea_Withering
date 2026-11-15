@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/factory") ||
+    pathname.startsWith("/factories") ||
     pathname.startsWith("/dryers") ||
     pathname.startsWith("/troughs") ||
     pathname.startsWith("/alerts") ||
@@ -72,10 +73,12 @@ export async function middleware(request: NextRequest) {
         ? "manager"
         : "viewer");
 
-    // Parameter Adjustment & User Management are strictly ADMIN ONLY
+    // Parameter Adjustment, User Management & Factory Management are strictly ADMIN ONLY
     if (
       role !== "admin" &&
-      (pathname.startsWith("/parameters") || pathname.startsWith("/users"))
+      (pathname.startsWith("/parameters") ||
+        pathname.startsWith("/users") ||
+        pathname.startsWith("/factories"))
     ) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
