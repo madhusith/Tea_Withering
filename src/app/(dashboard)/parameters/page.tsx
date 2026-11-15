@@ -70,6 +70,31 @@ export default function SystemParametersPage() {
     toast.info("Parameters reset to factory baseline defaults.");
   };
 
+  if (isViewer) {
+    return (
+      <div className="flex flex-col gap-6 py-12 max-w-2xl mx-auto items-center text-center">
+        <div className="w-16 h-16 rounded-2xl bg-sky-100 text-[#0284c7] flex items-center justify-center shadow-xs">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-[#012d1d]">
+            Access Restricted: Viewers
+          </h1>
+          <p className="text-[14px] text-slate-500 max-w-md mx-auto">
+            System parameter tuning and threshold operating envelopes are restricted to Factory Managers and Estate Administrators. You are currently signed in as a <span className="font-bold capitalize text-slate-700">Viewer</span>.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="px-5 py-2.5 rounded-lg bg-[#116c4a] text-white font-semibold text-[13px] hover:bg-[#0c4e35] shadow-xs flex items-center gap-2 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Dashboard</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto w-full pb-16 flex flex-col gap-6 py-4">
       {/* Top Breadcrumb & Badges */}

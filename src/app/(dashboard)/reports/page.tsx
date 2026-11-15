@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -7,9 +9,38 @@ import {
   Filter,
   BarChart3,
   CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
 
 export default function ReportsPage() {
+  const { isViewer } = useAuth();
+
+  if (isViewer) {
+    return (
+      <div className="flex flex-col gap-6 py-12 max-w-2xl mx-auto items-center text-center">
+        <div className="w-16 h-16 rounded-2xl bg-sky-100 text-[#0284c7] flex items-center justify-center shadow-xs">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-[#012d1d]">
+            Access Restricted: Viewers
+          </h1>
+          <p className="text-[14px] text-slate-500 max-w-md mx-auto">
+            Audit exports and analytics reports are restricted to Factory Managers and Estate Administrators. You are currently signed in as a <span className="font-bold capitalize text-slate-700">Viewer</span>.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="px-5 py-2.5 rounded-lg bg-[#116c4a] text-white font-semibold text-[13px] hover:bg-[#0c4e35] shadow-xs flex items-center gap-2 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Dashboard</span>
+        </Link>
+      </div>
+    );
+  }
+
   const reportsList = [
     {
       title: "Temperature History by Factory",

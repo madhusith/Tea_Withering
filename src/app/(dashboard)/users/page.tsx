@@ -83,6 +83,31 @@ export default function UserManagementPage() {
     toast.success(`User ${fullName} created successfully.`);
   };
 
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col gap-6 py-8 max-w-2xl mx-auto items-center text-center">
+        <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-xs">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-[#012d1d]">
+            Estate Administrator Privileges Required
+          </h1>
+          <p className="text-[14px] text-slate-500 max-w-md mx-auto">
+            User roster configuration, multi-tenant estate provisioning, and credential management are restricted to Estate Admins. You are currently signed in as a <span className="font-bold capitalize text-slate-700">{role}</span>.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="px-5 py-2.5 rounded-lg bg-[#116c4a] text-white font-semibold text-[13px] hover:bg-[#0c4e35] shadow-xs flex items-center gap-2 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Dashboard</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 py-4">
       {/* Top Breadcrumb */}

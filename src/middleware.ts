@@ -61,6 +61,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
+  // 4. Role-based route enforcement
+  if (user) {
+    const email = user.email || "";
+    const role =
+      user.user_metadata?.role ||
+      (email.startsWith("admin")
+        ? "admin"
+        : email.startsWith("manager")
+        ? "manager"
+        : "viewer");
+
+    // Viewer is strictly permitted ONLY to: Dashboard, Factory Monitoring, Heating Bay, Alerts, Troughs
+    // Block Viewer from System Parameters, User Management, Reports
+    if (
+      role === "viewer" &&
+      (pathname.startsWith("/parameters") ||
+        pathname.startsWith("/users") ||
+        pathname.startsWith("/reports"))
+    ) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    // Manager is permitted to Parameters & Reports, but blocked from User Management (Admin only)
+    if (role === "manager" && pathname.startsWith("/users")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
   return sessionResponse;
 }
 
@@ -69,3 +97,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|assets/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
+

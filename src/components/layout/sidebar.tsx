@@ -12,10 +12,11 @@ import {
   FileText,
   Radio,
   Sprout,
+  ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
 import { useTelemetryRealtime } from "@/context/telemetry-context";
+import { useAuth } from "@/context/auth-context";
 
 interface NavItem {
   label: string;
@@ -28,7 +29,9 @@ interface NavItem {
 export function Sidebar() {
   const pathname = usePathname();
   const { activeAlertsCount } = useTelemetryRealtime();
+  const { role, isAdmin, isManager, isViewer } = useAuth();
 
+  // 1. Operations: Available to ALL roles (Viewer, Manager, Admin)
   const operationsNav: NavItem[] = [
     {
       label: "Dashboard (Overview)",
@@ -54,23 +57,31 @@ export function Sidebar() {
     },
   ];
 
-  const systemConfigNav: NavItem[] = [
-    {
+  // 2. System Config: Role-restricted (Hidden for Viewer, Admin gets Users, Manager gets Params & Reports)
+  const systemConfigNav: NavItem[] = [];
+
+  if (isAdmin) {
+    systemConfigNav.push({
       label: "User Management",
       href: "/users",
       icon: Users,
-    },
-    {
-      label: "Parameters",
-      href: "/parameters",
-      icon: Sliders,
-    },
-    {
-      label: "Reports",
-      href: "/reports",
-      icon: FileText,
-    },
-  ];
+    });
+  }
+
+  if (isAdmin || isManager) {
+    systemConfigNav.push(
+      {
+        label: "Parameters",
+        href: "/parameters",
+        icon: Sliders,
+      },
+      {
+        label: "Reports",
+        href: "/reports",
+        icon: FileText,
+      }
+    );
+  }
 
   return (
     <aside
@@ -154,50 +165,61 @@ export function Sidebar() {
           </nav>
         </div>
 
-        {/* Navigation Group: System Config */}
-        <div className="px-4">
-          <div className="px-2 pb-2">
-            <span className="text-[11px] uppercase tracking-wider font-semibold text-[#6ee7b7]">
-              System Config
-            </span>
-          </div>
-          <nav className="flex flex-col gap-1">
-            {systemConfigNav.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
+        {/* Navigation Group: System Config (Filtered by Role: Admin & Manager Only) */}
+        {systemConfigNav.length > 0 ? (
+          <div className="px-4">
+            <div className="px-2 pb-2">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-[#6ee7b7]">
+                System Config
+              </span>
+            </div>
+            <nav className="flex flex-col gap-1">
+              {systemConfigNav.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname.startsWith(item.href);
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all",
-                    isActive
-                      ? "text-white font-semibold shadow-md"
-                      : "text-emerald-100/75 hover:bg-white/5 hover:text-white"
-                  )}
-                  style={
-                    isActive
-                      ? {
-                          background:
-                            "linear-gradient(135deg, rgb(27, 67, 50) 0%, rgb(3, 105, 161) 100%)",
-                          borderLeft: "3px solid rgb(56, 189, 248)",
-                        }
-                      : undefined
-                  }
-                >
-                  <Icon
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
                     className={cn(
-                      "w-4 h-4",
-                      isActive ? "text-[#7dd3fc]" : "text-emerald-300/80"
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all",
+                      isActive
+                        ? "text-white font-semibold shadow-md"
+                        : "text-emerald-100/75 hover:bg-white/5 hover:text-white"
                     )}
-                  />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+                    style={
+                      isActive
+                        ? {
+                            background:
+                              "linear-gradient(135deg, rgb(27, 67, 50) 0%, rgb(3, 105, 161) 100%)",
+                            borderLeft: "3px solid rgb(56, 189, 248)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <Icon
+                      className={cn(
+                        "w-4 h-4",
+                        isActive ? "text-[#7dd3fc]" : "text-emerald-300/80"
+                      )}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        ) : isViewer ? (
+          <div className="px-6 py-2">
+            <div className="p-3 rounded-lg bg-emerald-950/60 border border-emerald-500/20 text-[11px] text-emerald-200/90 flex flex-col gap-1">
+              <span className="font-bold uppercase tracking-wider text-emerald-300">
+                Viewer Role
+              </span>
+              <span>Supervisory monitoring view across troughs, heating bay &amp; alarms.</span>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Gateway Node Status Pill */}
