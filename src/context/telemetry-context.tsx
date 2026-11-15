@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useId } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mockTroughs as initialTroughs, mockDryer as initialDryer, mockAlerts as initialAlerts } from "@/lib/mock-data";
 import { TroughDevice, DryerDevice, Alert } from "@/types";
@@ -47,11 +47,18 @@ const TelemetryContext = createContext<TelemetryContextType | null>(null);
 export function TelemetryProvider({ children }: { children: React.ReactNode }) {
   const [factories, setFactories] = useState<FactoryItem[]>([defaultFactory]);
   const [currentFactory, setCurrentFactory] = useState<FactoryItem>(defaultFactory);
+  const currentFactoryRef = useRef<FactoryItem>(defaultFactory);
+
   const [troughs, setTroughs] = useState<TroughDevice[]>(initialTroughs);
   const [dryer, setDryer] = useState<DryerDevice>(initialDryer);
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts);
   const [lastHeartbeat, setLastHeartbeat] = useState<string>("Just now");
   const [isConnected, setIsConnected] = useState<boolean>(true);
+
+  // Keep ref synchronized
+  useEffect(() => {
+    currentFactoryRef.current = currentFactory;
+  }, [currentFactory]);
 
   const formatTime = (isoString: string) => {
     try {
@@ -71,30 +78,79 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     try {
-      // 1. Fetch available factories
-      const { data: dbFactoriesData } = await (supabase
-        .from("factories") as any)
-        .select("id, name, code, location")
-        .eq("status", "ACTIVE")
-        .order("name", { ascending: true });
-
-      if (dbFactoriesData && dbFactoriesData.length > 0) {
-        setFactories(dbFactoriesData);
+      // 1. Fetch available factories from Admin API to bypass RLS issues
+      let fetchedFactories: FactoryItem[] = [];
+      try {
+        const res = await fetch("/api/factories");
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.factories) && json.factories.length > 0) {
+            fetchedFactories = json.factories.map((f: any) => ({
+              id: f.id,
+              name: f.name,
+              code: f.code,
+              location: f.location,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("API fetch error for factories:", err);
       }
 
-      const activeFactoryId = targetFactoryId || currentFactory.id;
+      // Fallback to Supabase client if API returned empty
+      if (fetchedFactories.length === 0) {
+        const { data: dbFactoriesData } = await (supabase
+          .from("factories") as any)
+          .select("id, name, code, location")
+          .eq("status", "ACTIVE")
+          .order("name", { ascending: true });
 
-      // 2. Fetch devices for active factory (fallback to all if no match)
+        if (dbFactoriesData && dbFactoriesData.length > 0) {
+          fetchedFactories = dbFactoriesData;
+        }
+      }
+
+      // Merge factories into state so newly registered factories are never wiped
+      if (fetchedFactories.length > 0) {
+        setFactories((prev) => {
+          const map = new Map<string, FactoryItem>();
+          prev.forEach((f) => map.set(f.id, f));
+          fetchedFactories.forEach((f) => map.set(f.id, f));
+          return Array.from(map.values());
+        });
+      }
+
+      // Determine active factory
+      const savedFactoryId =
+        typeof window !== "undefined"
+          ? localStorage.getItem("ceylon_selected_factory_id")
+          : null;
+
+      const activeFactoryId =
+        targetFactoryId ||
+        savedFactoryId ||
+        currentFactoryRef.current.id;
+
+      // Sync active factory object
+      const allKnownFactories = fetchedFactories.length > 0 ? fetchedFactories : factories;
+      const matchedFactory = allKnownFactories.find((f) => f.id === activeFactoryId);
+      if (matchedFactory && matchedFactory.id !== currentFactoryRef.current.id) {
+        setCurrentFactory(matchedFactory);
+        currentFactoryRef.current = matchedFactory;
+      }
+
+      // 2. Fetch devices for active factory
       let { data: dbDevicesData } = await supabase
         .from("devices")
-        .select("id, device_code, name, type, active, factory_id")
+        .select("id, device_code, name, type, active, factory_id, gateway_id")
         .eq("factory_id", activeFactoryId)
         .order("device_code", { ascending: true });
 
-      if (!dbDevicesData || dbDevicesData.length === 0) {
+      // Fallback only if no devices exist for this factory and it is default
+      if ((!dbDevicesData || dbDevicesData.length === 0) && activeFactoryId === defaultFactory.id) {
         const fallback = await supabase
           .from("devices")
-          .select("id, device_code, name, type, active, factory_id")
+          .select("id, device_code, name, type, active, factory_id, gateway_id")
           .order("device_code", { ascending: true });
         dbDevicesData = fallback.data;
       }
@@ -103,7 +159,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         .from("readings")
         .select("*")
         .order("captured_at", { ascending: false })
-        .limit(30);
+        .limit(50);
 
       const { data: dbAlarmsData } = await (supabase
         .from("alarms") as any)
@@ -123,7 +179,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       const dbReadings = (dbReadingsData as any[]) || [];
       const dbAlarms = (dbAlarmsData as any[]) || [];
 
-      if (dbDevices.length > 0 && dbReadings.length > 0) {
+      if (dbDevices.length > 0) {
         const latestReadingMap = new Map();
         dbReadings.forEach((r) => {
           if (!latestReadingMap.has(r.device_id)) {
@@ -135,8 +191,8 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           .filter((d) => d.type === "TROUGH")
           .map((d, index) => {
             const r = latestReadingMap.get(d.id);
-            const dry = r?.temp_dry ?? 28.0 + index;
-            const wet = r?.temp_wet ?? 24.0 + index * 0.5;
+            const dry = r?.temp_dry ?? 28.0 + (index % 4) * 0.5;
+            const wet = r?.temp_wet ?? 23.8 + (index % 4) * 0.3;
             const delta = r?.delta ?? Math.round((dry - wet) * 10) / 10;
             const isWarn = delta > 4.8 || delta < 3.5;
 
@@ -145,8 +201,8 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
               device_code: d.device_code,
               name: d.name,
               type: "TROUGH" as const,
-              factory_id: "22222222-2222-2222-2222-222222222222",
-              gateway_id: "33333333-3333-3333-3333-333333333333",
+              factory_id: d.factory_id || activeFactoryId,
+              gateway_id: d.gateway_id || "33333333-3333-3333-3333-333333333333",
               temp_dry: dry,
               temp_wet: wet,
               delta: delta,
@@ -165,14 +221,14 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         const dryerDevice = dbDevices.find((d) => d.type === "DRYER");
         if (dryerDevice) {
           const r = latestReadingMap.get(dryerDevice.id);
-          const temp = r?.temperature ?? 84.5;
+          const temp = r?.temperature ?? 85.0;
           setDryer({
             id: dryerDevice.id,
             device_code: dryerDevice.device_code,
             name: dryerDevice.name,
             type: "DRYER" as const,
-            factory_id: "22222222-2222-2222-2222-222222222222",
-            gateway_id: "33333333-3333-3333-3333-333333333333",
+            factory_id: dryerDevice.factory_id || activeFactoryId,
+            gateway_id: dryerDevice.gateway_id || "33333333-3333-3333-3333-333333333333",
             temperature: temp,
             target_temperature: 85.0,
             status: temp > 90.0 || temp < 80.0 ? "WARNING" : "NORMAL",
@@ -184,7 +240,13 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (dbAlarms.length > 0) {
-        const mappedAlerts: Alert[] = dbAlarms.map((a: any) => {
+        const factoryAlarms = dbAlarms.filter(
+          (a: any) => !a.devices?.factory_id || a.devices?.factory_id === activeFactoryId
+        );
+
+        const targetAlerts = factoryAlarms.length > 0 ? factoryAlarms : dbAlarms;
+
+        const mappedAlerts: Alert[] = targetAlerts.map((a: any) => {
           let status: "active" | "snoozed" | "resolved" = "active";
           if (a.state === "CLEARED") status = "resolved";
           else if (a.state === "SNOOZED") status = "snoozed";
@@ -192,15 +254,15 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           const isDryer = a.devices?.type === "DRYER";
           const devName = isDryer ? "Heating Bay" : (a.devices?.name || "Withering Bay");
           let message = `${a.alarm_rules?.metric?.replace(/_/g, " ") || "Threshold"} deviation (${a.trigger_value}°C)`;
-          if (a.alarm_rules?.metric === "DRYER_TEMP") {
+          if (a.alarm_rules?.metric === "DRYER_TEMP" || a.alarm_rules?.metric === "SUPPLY_AIR_TEMPERATURE") {
             message = `Heating Bay Fluctuation (${a.trigger_value}°C)`;
-          } else if (a.alarm_rules?.metric === "HYGROMETRIC_DEPRESSION") {
+          } else if (a.alarm_rules?.metric === "HYGROMETRIC_DEPRESSION" || a.alarm_rules?.metric === "WET_BULB_DEPRESSION") {
             message = `High Wet-Bulb Depression (${a.trigger_value}°C)`;
           }
 
           return {
             id: a.id,
-            factory_name: "St. Clair Estate",
+            factory_name: currentFactoryRef.current.name,
             device_code: a.devices?.device_code || (isDryer ? "DR-001" : "TR-001"),
             device_name: devName,
             device_type: (a.devices?.type as any) || (isDryer ? "DRYER" : "TROUGH"),
@@ -220,13 +282,12 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.warn("Using offline fallback for telemetry:", err);
     }
-  }, []);
+  }, [factories]);
 
   useEffect(() => {
     loadInitialData();
 
     const supabase = createClient();
-    // Unique channel instance for provider
     const channelId = `telemetry-stream-${Date.now()}`;
     const channel = supabase
       .channel(channelId)
@@ -238,21 +299,13 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           const timeLabel = formatTime(newReading.captured_at || new Date().toISOString());
           setLastHeartbeat(timeLabel);
 
-          const DEVICE_MAP: Record<string, string> = {
-            "44444444-4444-4444-4444-000000000001": "TR-001",
-            "44444444-4444-4444-4444-000000000002": "TR-002",
-            "44444444-4444-4444-4444-000000000003": "TR-003",
-            "44444444-4444-4444-4444-000000000004": "TR-004",
-            "44444444-4444-4444-4444-000000000005": "DR-001",
-          };
-
-          const matchedCode = DEVICE_MAP[newReading.device_id] || newReading.device_code;
-
           if (newReading.temp_dry !== null && newReading.temp_wet !== null) {
             setTroughs((prev) =>
               prev.map((t) => {
-                if (t.id === newReading.device_id || t.device_code === matchedCode) {
-                  const delta = newReading.delta ?? Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
+                if (t.id === newReading.device_id || t.device_code === newReading.device_code) {
+                  const delta =
+                    newReading.delta ??
+                    Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
                   const isWarn = delta > 4.8 || delta < 3.5;
                   return {
                     ...t,
@@ -267,11 +320,9 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
                 return t;
               })
             );
-          }
-
-          if (newReading.temperature !== null) {
+          } else if (newReading.temperature !== null) {
             setDryer((prev) => {
-              if (prev.id === newReading.device_id || prev.device_code === matchedCode) {
+              if (prev.id === newReading.device_id || prev.device_code === newReading.device_code) {
                 const temp = newReading.temperature;
                 return {
                   ...prev,
@@ -287,16 +338,22 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "alarms" },
-        () => {
-          loadInitialData();
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "devices" },
-        () => {
-          loadInitialData();
+        { event: "INSERT", schema: "public", table: "alarms" },
+        (payload) => {
+          const newAlarm = payload.new as any;
+          const newAlert: Alert = {
+            id: newAlarm.id,
+            factory_name: currentFactoryRef.current.name,
+            device_code: "TR-DEV",
+            device_name: "Withering Trough",
+            device_type: "TROUGH",
+            message: `Temperature threshold excursion (${newAlarm.trigger_value}°C)`,
+            severity: "warning",
+            status: "active",
+            triggered_at: formatTime(newAlarm.triggered_at || new Date().toISOString()),
+            trigger_value: Number(newAlarm.trigger_value),
+          };
+          setAlerts((prev) => [newAlert, ...prev]);
         }
       )
       .subscribe((status) => {
@@ -308,31 +365,22 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadInitialData]);
 
+  const refreshTelemetry = useCallback(async () => {
+    await loadInitialData(currentFactoryRef.current.id);
+  }, [loadInitialData]);
+
   const updateAlarmState = useCallback(
     async (id: string, newState: "ACKNOWLEDGED" | "SNOOZED" | "CLEARED") => {
-      const supabase = createClient();
-      const now = new Date().toISOString();
-      const updatePayload: Record<string, any> = { state: newState };
-      
-      if (newState === "CLEARED") {
-        updatePayload.cleared_at = now;
-      } else if (newState === "ACKNOWLEDGED") {
-        updatePayload.acknowledged_at = now;
-      } else if (newState === "SNOOZED") {
-        updatePayload.snoozed_until = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-      }
-
-      // Optimistic update
       setAlerts((prev) =>
         prev.map((a) => {
           if (a.id === id) {
+            const mappedStatus = newState === "CLEARED" ? "resolved" : newState === "SNOOZED" ? "snoozed" : "active";
             return {
               ...a,
-              status: newState === "CLEARED" ? "resolved" : newState === "SNOOZED" ? "snoozed" : a.status,
+              status: mappedStatus,
               acknowledged_at: newState === "ACKNOWLEDGED" ? "Just now" : a.acknowledged_at,
+              snoozed_until: newState === "SNOOZED" ? "In 15 mins" : a.snoozed_until,
               resolved_at: newState === "CLEARED" ? "Just now" : a.resolved_at,
-              resolved_by: newState === "CLEARED" ? "Rohan P. (Manager)" : a.resolved_by,
-              snoozed_until: newState === "SNOOZED" ? "In 30m" : a.snoozed_until,
             };
           }
           return a;
@@ -340,9 +388,18 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       );
 
       try {
+        const supabase = createClient();
+        const updatePayload: Record<string, any> = { state: newState };
+        if (newState === "ACKNOWLEDGED") updatePayload.acknowledged_at = new Date().toISOString();
+        if (newState === "CLEARED") updatePayload.cleared_at = new Date().toISOString();
+        if (newState === "SNOOZED") {
+          const snoozeDate = new Date(Date.now() + 15 * 60 * 1000);
+          updatePayload.snoozed_until = snoozeDate.toISOString();
+        }
+
         await (supabase.from("alarms") as any).update(updatePayload).eq("id", id);
       } catch (err) {
-        console.warn("Failed to persist alarm update to Supabase:", err);
+        console.error("Failed to update alarm state in Supabase:", err);
       }
     },
     []
@@ -355,6 +412,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            factory_id: currentFactoryRef.current.id,
             device_code: code,
             name: name,
             type: "TROUGH",
@@ -364,7 +422,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         if (!res.ok) {
           return { success: false, error: data.error || "Failed to add trough" };
         }
-        await loadInitialData();
+        await loadInitialData(currentFactoryRef.current.id);
         return { success: true };
       } catch (err: any) {
         return { success: false, error: err.message || "Network error" };
@@ -383,7 +441,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         if (!res.ok) {
           return { success: false, error: data.error || "Failed to remove trough" };
         }
-        await loadInitialData();
+        await loadInitialData(currentFactoryRef.current.id);
         return { success: true };
       } catch (err: any) {
         return { success: false, error: err.message || "Network error" };
@@ -394,10 +452,14 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
   const switchFactory = useCallback(
     async (factoryId: string) => {
-      const found = factories.find((f) => f.id === factoryId);
-      if (found) {
-        setCurrentFactory(found);
-        await loadInitialData(found.id);
+      const match = factories.find((f) => f.id === factoryId);
+      if (match) {
+        setCurrentFactory(match);
+        currentFactoryRef.current = match;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("ceylon_selected_factory_id", match.id);
+        }
+        await loadInitialData(match.id);
       }
     },
     [factories, loadInitialData]
@@ -430,8 +492,19 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           location: result.factory.location,
         };
 
-        setFactories((prev) => [...prev, newFactory]);
+        setFactories((prev) => {
+          const map = new Map<string, FactoryItem>();
+          prev.forEach((f) => map.set(f.id, f));
+          map.set(newFactory.id, newFactory);
+          return Array.from(map.values());
+        });
+
         setCurrentFactory(newFactory);
+        currentFactoryRef.current = newFactory;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("ceylon_selected_factory_id", newFactory.id);
+        }
+
         await loadInitialData(newFactory.id);
         return { success: true, factory: newFactory };
       } catch (err: any) {
@@ -456,7 +529,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         currentFactory,
         switchFactory,
         createFactory,
-        refreshTelemetry: loadInitialData,
+        refreshTelemetry,
         updateAlarmState,
         addTrough,
         removeTrough,
