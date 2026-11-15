@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         factory_id: newFactory.id,
         serial_number: gwSerial,
         firmware_version: "v1.2.0",
-        status: "ONLINE",
+        status: "NORMAL",
       })
       .select()
       .single();
