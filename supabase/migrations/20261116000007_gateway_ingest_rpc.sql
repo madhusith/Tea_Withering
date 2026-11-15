@@ -233,3 +233,4 @@ CREATE POLICY "Anon can insert device_status" ON device_status FOR INSERT TO ano
 
 DROP POLICY IF EXISTS "Anon can update device_status" ON device_status;
 CREATE POLICY "Anon can update device_status" ON device_status FOR UPDATE TO anon USING (true);
+

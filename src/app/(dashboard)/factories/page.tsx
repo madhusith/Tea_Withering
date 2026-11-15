@@ -455,3 +455,4 @@ export default function FactoryManagementPage() {
     </div>
   );
 }
+
