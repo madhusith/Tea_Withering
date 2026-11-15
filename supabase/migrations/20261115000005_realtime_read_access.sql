@@ -38,3 +38,4 @@ DROP POLICY IF EXISTS "Users can view alarm rules in their factory" ON alarm_rul
 CREATE POLICY "Users can view alarm rules in their factory"
   ON alarm_rules FOR SELECT
   USING (true);
+

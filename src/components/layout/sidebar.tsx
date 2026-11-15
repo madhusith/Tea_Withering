@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { useTelemetryRealtime } from "@/context/telemetry-context";
+
 interface NavItem {
   label: string;
   href: string;
@@ -23,51 +25,52 @@ interface NavItem {
   badgeVariant?: "error" | "default";
 }
 
-const operationsNav: NavItem[] = [
-  {
-    label: "Dashboard (Overview)",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Factory Monitoring",
-    href: "/factory",
-    icon: Factory,
-  },
-  {
-    label: "Heating Bay",
-    href: "/dryers/DR-001",
-    icon: Fan,
-  },
-  {
-    label: "Alerts & Notifications",
-    href: "/alerts",
-    icon: Bell,
-    badge: 2,
-    badgeVariant: "error",
-  },
-];
-
-const systemConfigNav: NavItem[] = [
-  {
-    label: "User Management",
-    href: "/users",
-    icon: Users,
-  },
-  {
-    label: "Parameters",
-    href: "/parameters",
-    icon: Sliders,
-  },
-  {
-    label: "Reports",
-    href: "/reports",
-    icon: FileText,
-  },
-];
-
 export function Sidebar() {
   const pathname = usePathname();
+  const { activeAlertsCount } = useTelemetryRealtime();
+
+  const operationsNav: NavItem[] = [
+    {
+      label: "Dashboard (Overview)",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Factory Monitoring",
+      href: "/factory",
+      icon: Factory,
+    },
+    {
+      label: "Heating Bay",
+      href: "/dryers/DR-001",
+      icon: Fan,
+    },
+    {
+      label: "Alerts & Notifications",
+      href: "/alerts",
+      icon: Bell,
+      badge: activeAlertsCount > 0 ? activeAlertsCount : undefined,
+      badgeVariant: "error",
+    },
+  ];
+
+  const systemConfigNav: NavItem[] = [
+    {
+      label: "User Management",
+      href: "/users",
+      icon: Users,
+    },
+    {
+      label: "Parameters",
+      href: "/parameters",
+      icon: Sliders,
+    },
+    {
+      label: "Reports",
+      href: "/reports",
+      icon: FileText,
+    },
+  ];
 
   return (
     <aside

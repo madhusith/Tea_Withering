@@ -11,14 +11,15 @@ import {
   Check,
   Clock,
   Moon,
+  RotateCw,
 } from "lucide-react";
-import { mockAlerts } from "@/lib/mock-data";
-import { Alert } from "@/types";
+import { useTelemetryRealtime } from "@/context/telemetry-context";
 import { toast } from "sonner";
 
 export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
+  const { alerts, updateAlarmState, refreshTelemetry } = useTelemetryRealtime();
   const [filter, setFilter] = useState<"all" | "active" | "snoozed" | "resolved">("all");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const activeCount = alerts.filter((a) => a.status === "active").length;
   const snoozedCount = alerts.filter((a) => a.status === "snoozed").length;
@@ -29,49 +30,39 @@ export default function AlertsPage() {
     return a.status === filter;
   });
 
-  const handleResolve = (id: string) => {
-    setAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === id
-          ? {
-              ...alert,
-              status: "resolved",
-              resolved_at: "Just now",
-              resolved_by: "Rohan P. (Manager)",
-            }
-          : alert
-      )
-    );
-    toast.success("Alert marked as resolved.");
+  const handleResolve = async (id: string) => {
+    try {
+      await updateAlarmState(id, "CLEARED");
+      toast.success("Incident marked as resolved/cleared in Supabase.");
+    } catch {
+      toast.error("Failed to update incident.");
+    }
   };
 
-  const handleSnooze = (id: string) => {
-    setAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === id
-          ? {
-              ...alert,
-              status: "snoozed",
-              snoozed_until: "In 30 minutes",
-            }
-          : alert
-      )
-    );
-    toast.info("Alert snoozed for 30 minutes. Status remains open (not resolved).");
+  const handleSnooze = async (id: string) => {
+    try {
+      await updateAlarmState(id, "SNOOZED");
+      toast.info("Incident snoozed for 30 minutes. Status remains open.");
+    } catch {
+      toast.error("Failed to snooze incident.");
+    }
   };
 
-  const handleAcknowledgeAll = () => {
-    setAlerts((prev) =>
-      prev.map((alert) =>
-        alert.status === "active"
-          ? {
-              ...alert,
-              acknowledged_at: "Just now",
-            }
-          : alert
-      )
-    );
-    toast.success("All active alerts acknowledged.");
+  const handleAcknowledgeAll = async () => {
+    try {
+      const activeAlerts = alerts.filter((a) => a.status === "active");
+      await Promise.all(activeAlerts.map((a) => updateAlarmState(a.id, "ACKNOWLEDGED")));
+      toast.success(`Acknowledged ${activeAlerts.length} active incidents.`);
+    } catch {
+      toast.error("Failed to acknowledge incidents.");
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshTelemetry();
+    setTimeout(() => setIsRefreshing(false), 500);
+    toast.success("Synced latest alarms from database.");
   };
 
   return (
@@ -94,14 +85,26 @@ export default function AlertsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAcknowledgeAll}
-          className="px-4 py-2 rounded-lg bg-white shadow-xs hover:bg-slate-50 text-slate-700 font-semibold text-[13px] flex items-center gap-2 border border-slate-200 transition-colors self-start sm:self-auto cursor-pointer"
-        >
-          <CheckCheck className="w-4 h-4 text-slate-500" />
-          <span>Acknowledge All</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="px-3 py-2 rounded-lg bg-white shadow-xs hover:bg-slate-50 text-slate-700 font-semibold text-[13px] flex items-center gap-1.5 border border-slate-200 transition-colors cursor-pointer"
+            title="Refresh alerts from database"
+          >
+            <RotateCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>Sync</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleAcknowledgeAll}
+            className="px-4 py-2 rounded-lg bg-white shadow-xs hover:bg-slate-50 text-slate-700 font-semibold text-[13px] flex items-center gap-2 border border-slate-200 transition-colors cursor-pointer"
+          >
+            <CheckCheck className="w-4 h-4 text-slate-500" />
+            <span>Acknowledge All</span>
+          </button>
+        </div>
       </div>
 
       {/* 3 Summary Metric Cards */}

@@ -13,6 +13,7 @@ interface TelemetryContextType {
   lastHeartbeat: string;
   isConnected: boolean;
   refreshTelemetry: () => Promise<void>;
+  updateAlarmState: (id: string, newState: "ACKNOWLEDGED" | "SNOOZED" | "CLEARED") => Promise<void>;
 }
 
 const TelemetryContext = createContext<TelemetryContextType | null>(null);
@@ -132,18 +133,37 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (dbAlarms.length > 0) {
-        const mappedAlerts: Alert[] = dbAlarms.map((a: any) => ({
-          id: a.id,
-          factory_name: "St. Clair Tea Estate",
-          device_code: a.devices?.device_code || "TR-002",
-          device_name: a.devices?.name || "Withering Bay",
-          device_type: (a.devices?.type as any) || "TROUGH",
-          message: `${a.alarm_rules?.metric?.replace(/_/g, " ") || "Threshold"} deviation (${a.trigger_value}°C measured)`,
-          severity: (a.alarm_rules?.severity?.toLowerCase() as any) || "warning",
-          status: a.state === "CLEARED" ? "resolved" : (a.state?.toLowerCase() as any) || "active",
-          triggered_at: formatTime(a.triggered_at),
-          trigger_value: a.trigger_value,
-        }));
+        const mappedAlerts: Alert[] = dbAlarms.map((a: any) => {
+          let status: "active" | "snoozed" | "resolved" = "active";
+          if (a.state === "CLEARED") status = "resolved";
+          else if (a.state === "SNOOZED") status = "snoozed";
+
+          const isDryer = a.devices?.type === "DRYER";
+          const devName = isDryer ? "Heating Bay" : (a.devices?.name || "Withering Bay");
+          let message = `${a.alarm_rules?.metric?.replace(/_/g, " ") || "Threshold"} deviation (${a.trigger_value}°C)`;
+          if (a.alarm_rules?.metric === "DRYER_TEMP") {
+            message = `Heating Bay Fluctuation (${a.trigger_value}°C)`;
+          } else if (a.alarm_rules?.metric === "HYGROMETRIC_DEPRESSION") {
+            message = `High Wet-Bulb Depression (${a.trigger_value}°C)`;
+          }
+
+          return {
+            id: a.id,
+            factory_name: "St. Clair Estate",
+            device_code: a.devices?.device_code || (isDryer ? "DR-001" : "TR-001"),
+            device_name: devName,
+            device_type: (a.devices?.type as any) || (isDryer ? "DRYER" : "TROUGH"),
+            message: message,
+            severity: (a.alarm_rules?.severity?.toLowerCase() as any) || "warning",
+            status: status,
+            triggered_at: formatTime(a.triggered_at),
+            acknowledged_at: a.acknowledged_at ? formatTime(a.acknowledged_at) : undefined,
+            snoozed_until: a.snoozed_until ? formatTime(a.snoozed_until) : undefined,
+            resolved_at: a.cleared_at ? formatTime(a.cleared_at) : undefined,
+            trigger_value: Number(a.trigger_value),
+            resolved_by: a.state === "CLEARED" ? "Rohan P. (Manager)" : undefined,
+          };
+        });
         setAlerts(mappedAlerts);
       }
     } catch (err) {
@@ -230,6 +250,46 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadInitialData]);
 
+  const updateAlarmState = useCallback(
+    async (id: string, newState: "ACKNOWLEDGED" | "SNOOZED" | "CLEARED") => {
+      const supabase = createClient();
+      const now = new Date().toISOString();
+      const updatePayload: Record<string, any> = { state: newState };
+      
+      if (newState === "CLEARED") {
+        updatePayload.cleared_at = now;
+      } else if (newState === "ACKNOWLEDGED") {
+        updatePayload.acknowledged_at = now;
+      } else if (newState === "SNOOZED") {
+        updatePayload.snoozed_until = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+      }
+
+      // Optimistic update
+      setAlerts((prev) =>
+        prev.map((a) => {
+          if (a.id === id) {
+            return {
+              ...a,
+              status: newState === "CLEARED" ? "resolved" : newState === "SNOOZED" ? "snoozed" : a.status,
+              acknowledged_at: newState === "ACKNOWLEDGED" ? "Just now" : a.acknowledged_at,
+              resolved_at: newState === "CLEARED" ? "Just now" : a.resolved_at,
+              resolved_by: newState === "CLEARED" ? "Rohan P. (Manager)" : a.resolved_by,
+              snoozed_until: newState === "SNOOZED" ? "In 30m" : a.snoozed_until,
+            };
+          }
+          return a;
+        })
+      );
+
+      try {
+        await (supabase.from("alarms") as any).update(updatePayload).eq("id", id);
+      } catch (err) {
+        console.warn("Failed to persist alarm update to Supabase:", err);
+      }
+    },
+    []
+  );
+
   const activeAlertsCount = alerts.filter((a) => a.status === "active").length;
 
   return (
@@ -242,6 +302,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
         lastHeartbeat,
         isConnected,
         refreshTelemetry: loadInitialData,
+        updateAlarmState,
       }}
     >
       {children}
