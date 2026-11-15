@@ -1,0 +1,451 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-on-surface": "#eaf1ff", "surface-variant": "#d3e4fe", "surface-tint": "#3f6653", "tertiary-fixed": "#92f7c3", "on-secondary-container": "#1b724f", "surface-dim": "#cbdbf5", "primary-fixed": "#c1ecd4", "surface-bright": "#f8f9ff", "surface": "#f8f9ff", "on-secondary-fixed": "#002113", "primary-fixed-dim": "#a5d0b9", "surface-container": "#e5eeff", "primary": "#012d1d", "on-tertiary-container": "#53b889", "on-error-container": "#93000a", "secondary-fixed-dim": "#86d7ad", "secondary": "#116c4a", "on-background": "#0b1c30", "on-error": "#ffffff", "on-primary-fixed-variant": "#274e3d", "error-container": "#ffdad6", "tertiary-fixed-dim": "#75daa8", "outline-variant": "#c1c8c2", "surface-container-low": "#eff4ff", "outline": "#717973", "on-primary-container": "#86af99", "background": "#f8f9ff", "tertiary": "#002d1b", "tertiary-container": "#00452c", "surface-container-highest": "#d3e4fe", "inverse-primary": "#a5d0b9", "on-secondary": "#ffffff", "on-tertiary-fixed": "#002113", "secondary-container": "#a1f4c8", "secondary-fixed": "#a1f4c8", "on-primary": "#ffffff", "on-primary-fixed": "#002114", "on-surface-variant": "#414844", "on-surface": "#0b1c30", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed-variant": "#005235", "primary-container": "#1b4332", "on-secondary-fixed-variant": "#005236", "error": "#ba1a1a", "surface-container-high": "#dce9ff", "inverse-surface": "#213145" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "margin-desktop": "2rem", "space-md": "0.75rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "space-xl": "2rem", "margin": "1rem", "space-lg": "1.25rem", "space-sm": "0.5rem" }, "fontFamily": { "body-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "metric-display": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "metric-sub": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"] }, "fontSize": { "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "metric-display": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "metric-sub": ["13px", { "lineHeight": "18px", "fontWeight": "500" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container" style="background: linear-gradient(135deg, rgb(240, 244, 248) 0%, rgb(238, 245, 242) 50%, rgb(244, 248, 250) 100%); min-height: 100vh;"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-5 pb-6" style="background: linear-gradient(rgb(16, 42, 30) 0%, rgb(13, 35, 25) 100%); border-right: 1px solid rgba(2, 132, 199, 0.15);"><div class="flex flex-col gap-6"><div class="px-6 flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm" style="background: linear-gradient(135deg, rgb(2, 132, 199) 0%, rgb(30, 64, 175) 100%);"><span class="material-symbols-outlined text-[20px]">potted_plant</span></div><div class="flex flex-col"><span class="font-label-lg text-label-lg text-white tracking-tight font-semibold">Ceylon IoT</span><span class="font-label-sm text-label-sm text-emerald-200/70">Withering Telemetry</span></div></div><div class="px-4"><div class="px-2 pb-2"><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold" style="color: rgb(110, 231, 183);">Operations</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-[0_1px_3px_rgba(27,67,50,0.08)]"><a aria-current="page" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-white font-semibold shadow-md" style="background: linear-gradient(135deg, rgb(27, 67, 50) 0%, rgb(3, 105, 161) 100%); border-left: 3px solid rgb(56, 189, 248);" data-path="dashboard-overview" href="#"><span class="material-symbols-outlined text-[20px] text-[#7dd3fc]">grid_view</span>Dashboard (Overview)</a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-100/75 font-label-md text-label-md hover:bg-white/5 hover:text-white transition-all" data-path="factory-monitoring" href="#"><span class="material-symbols-outlined text-[20px] text-emerald-300/80">precision_manufacturing</span>Factory Monitoring</a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-100/75 font-label-md text-label-md hover:bg-white/5 hover:text-white transition-all" data-path="heating-bay" href="#"><span class="material-symbols-outlined text-[20px] text-sky-400/80">mode_fan</span>Heating Bay</a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-emerald-100/75 font-label-md text-label-md hover:bg-white/5 hover:text-white transition-all" data-path="alerts-notifications" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px] text-amber-300/80">notifications_active</span>Alerts &amp; Notifications</div><span class="px-1.5 py-0.5 rounded-full bg-error text-white font-label-sm text-label-sm font-semibold shadow-sm">2</span></a></nav></div><div class="px-4"><div class="px-2 pb-2"><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold" style="color: rgb(110, 231, 183);">System Config</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-[0_1px_3px_rgba(27,67,50,0.08)]"><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-100/75 font-label-md text-label-md hover:bg-white/5 hover:text-white transition-all" data-path="user-management" href="#"><span class="material-symbols-outlined text-[20px] text-emerald-300/80">manage_accounts</span>User Management</a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-100/75 font-label-md text-label-md hover:bg-white/5 hover:text-white transition-all" data-path="parameters" href="#"><span class="material-symbols-outlined text-[20px] text-sky-400/80">tune</span>Parameters</a></nav></div></div><div class="px-4"><div class="p-3 rounded-lg flex items-center justify-between" style="background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(56, 189, 248, 0.2);"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-white font-semibold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#38bdf8] animate-pulse"></span>Gateway Node</span><span class="font-label-sm text-label-sm text-[#7dd3fc] font-medium">Online • 99.8% SLA</span></div><span class="material-symbols-outlined text-[20px] text-[#38bdf8]">sensors</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter-desktop flex items-center justify-between" style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(12px); border-bottom: 2px solid rgb(2, 132, 199); box-shadow: rgba(11, 60, 93, 0.05) 0px 2px 12px;"><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg text-on-surface" style="background: rgb(240, 247, 255); border: 1px solid rgb(191, 219, 254); color: rgb(11, 60, 93);"><span class="material-symbols-outlined text-[18px] text-[#1e40af]">domain</span><span class="font-label-md text-label-md font-semibold">St. Clair Tea Estate</span><span class="material-symbols-outlined text-[16px] text-outline">unfold_more</span></div><span class="font-label-sm text-label-sm text-outline">Div. No. 03 • Trough Hall B</span></div><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#e0f2fe] text-[#0369a1] font-label-sm text-label-sm font-semibold"><span class="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse"></span>Live Telemetry</div><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-surface-container-high"></div><div class="flex items-center gap-3 pl-1"><div class="flex flex-col items-end"><span class="font-label-md text-label-md font-semibold text-on-surface">Rohan P.</span><span class="font-label-sm text-label-sm text-outline">Factory Manager</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button class="p-1 text-on-surface-variant hover:text-on-surface transition-colors" title="Switch view profile" type="button"><span class="material-symbols-outlined text-[18px]">swap_vert</span></button></div></div></header><main class="w-full pt-16 px-gutter-desktop min-h-screen bg-background" style="background: transparent;"><div class="flex flex-col w-full pb-12 gap-y-6">
+<!-- Top Action & Overview Header -->
+<section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping opacity-75"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Trough Hall Active Cycle</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">Factory Overview</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">12 Withering Bays • Real-time Monitoring</p>
+</div>
+<!-- Quick Status Pill Counters -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-secondary-container text-on-secondary-container shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md font-semibold">10 Normal</span>
+</div>
+<div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-error-container text-on-error-container shadow-sm">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-label-md text-label-md font-semibold">2 Attention Required</span>
+</div>
+</div>
+</section>
+<!-- Top Highlight Section: Biomass Heating Bay -->
+<section class="w-full">
+<div class="rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6" style="background: linear-gradient(135deg, rgb(255, 255, 255) 0%, rgb(241, 247, 252) 60%, rgb(232, 244, 236) 100%); border: 1px solid rgba(2, 132, 199, 0.2); box-shadow: rgba(1, 45, 29, 0.06) 0px 4px 20px;">
+<!-- Decorative faint backdrop glow -->
+<div class="absolute -right-16 -top-16 w-52 h-52 bg-primary/5 rounded-full pointer-events-none blur-2xl"></div>
+<div class="flex flex-col md:flex-row md:items-center gap-6 z-10">
+<!-- Visual Icon Avatar -->
+<div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[#012d1d] to-[#1e3a8a] text-white flex items-center justify-center shadow-sm ring-1 ring-[#2563eb]/20">
+<span class="material-symbols-outlined text-[30px]">mode_fan</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2.5">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Biomass Heating Bay</h2>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+            </span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Primary Heat Exchanger System #01 • Continuous Woodchip Feeder</span>
+</div>
+</div>
+<!-- Temperature Metric Block & Link -->
+<div class="flex items-center flex-wrap gap-8 z-10">
+<!-- Current Temp -->
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Current Temp</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-metric-display text-metric-display text-primary font-bold tabular-nums">84.5</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant font-medium">°C</span>
+</div>
+</div>
+<div class="h-10 w-px bg-surface-container-highest hidden sm:block"></div>
+<!-- Target Temp -->
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Target Temp</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-metric-display text-metric-display text-on-surface-variant font-semibold tabular-nums">85.0</span>
+<span class="font-label-lg text-label-lg text-outline font-medium">°C</span>
+</div>
+</div>
+<!-- Link Button -->
+<a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-label-lg text-label-lg font-semibold transition-colors shadow-sm ml-auto sm:ml-0" href="#" style="background: linear-gradient(135deg, rgb(11, 60, 93) 0%, rgb(30, 64, 175) 100%); box-shadow: rgba(30, 64, 175, 0.25) 0px 2px 8px;">
+<span>View Heating Bay</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Withering Bays Grid Header Bar -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">grid_view</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Active Withering Troughs</h3>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Sorted by Bay Number (01–12)</span>
+</div>
+<!-- 12-Card Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" style="--card-border: rgba(11, 60, 93, 0.12);">
+<!-- Bay 01 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 01</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.4°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.1°C</span>
+</div>
+</div>
+<!-- Highlighted Depression Value -->
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.3°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 02 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 02</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">27.9°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">23.9°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.0°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 03 (Warning: High Difference) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 03</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Warning
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">30.1°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">23.9°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-error-container/60 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-error-container font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-error tabular-nums">Δ 6.2°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-error group-hover:text-on-error-container font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 04 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 04</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.1°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.3°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 3.8°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 05 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 05</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.7°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.5°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.2°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 06 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 06</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.0°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.4°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 3.6°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 07 (Warning: Low Difference) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 07</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Warning
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">26.3°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.5°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-error-container/60 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-error-container font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-error tabular-nums">Δ 1.8°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-error group-hover:text-on-error-container font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 08 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 08</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.5°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.0°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.5°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 09 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 09</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.2°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.1°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.1°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 10 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 10</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">27.8°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.1°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 3.7°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 11 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 11</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.6°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.2°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 4.4°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Bay 12 (Normal) -->
+<div class="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Bay 12</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Dry Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">28.3°C</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-outline block">Wet Bulb</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tabular-nums">24.4°C</span>
+</div>
+</div>
+<div class="rounded-lg p-3 bg-primary-fixed/30 flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant font-medium">Difference</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary tabular-nums">Δ 3.9°C</span>
+</div>
+</div>
+<a class="inline-flex items-center justify-between text-[#2563eb] hover:text-[#1d4ed8] font-label-md text-label-md font-semibold pt-1 transition-colors" href="#">
+<span>View Details</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Pagination / Footer Status Note -->
+<footer class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-transparent text-outline gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="font-body-sm text-body-sm">Showing 12 of 12 withering bays</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Optimal: Δ 3.0°C – 5.0°C</span>
+</div>
+<div class="h-3 w-px bg-surface-container-highest"></div>
+<span class="font-body-sm text-body-sm text-outline">Telemetry sync: just now</span>
+</div>
+</footer>
+</div></main></div>
+
+
+
+</body></html>

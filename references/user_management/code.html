@@ -1,0 +1,339 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#eff4ff", "secondary": "#116c4a", "background": "#f8f9ff", "surface-container-highest": "#d3e4fe", "on-tertiary-container": "#53b889", "inverse-primary": "#a5d0b9", "on-surface": "#0b1c30", "on-primary-fixed": "#002114", "inverse-on-surface": "#eaf1ff", "on-primary-fixed-variant": "#274e3d", "secondary-fixed": "#a1f4c8", "outline": "#717973", "error-container": "#ffdad6", "primary": "#012d1d", "surface-variant": "#d3e4fe", "on-secondary-fixed": "#002113", "tertiary-fixed-dim": "#75daa8", "primary-fixed": "#c1ecd4", "surface-dim": "#cbdbf5", "on-error": "#ffffff", "tertiary": "#002d1b", "secondary-fixed-dim": "#86d7ad", "surface": "#f8f9ff", "surface-container-high": "#dce9ff", "tertiary-fixed": "#92f7c3", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "on-primary-container": "#86af99", "on-error-container": "#93000a", "surface-tint": "#3f6653", "secondary-container": "#a1f4c8", "error": "#ba1a1a", "on-tertiary-fixed": "#002113", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#005235", "primary-fixed-dim": "#a5d0b9", "tertiary-container": "#00452c", "on-background": "#0b1c30", "primary-container": "#1b4332", "outline-variant": "#c1c8c2", "surface-bright": "#f8f9ff", "on-secondary-fixed-variant": "#005236", "surface-container": "#e5eeff", "on-secondary-container": "#1b724f", "inverse-surface": "#213145", "on-surface-variant": "#414844" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "1rem", "gutter-desktop": "1.5rem", "space-md": "0.75rem", "space-xs": "0.25rem", "margin-desktop": "2rem", "space-lg": "1.25rem", "margin": "1rem", "space-xl": "2rem", "space-sm": "0.5rem" }, "fontFamily": { "label-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "metric-display": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "metric-sub": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"] }, "fontSize": { "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "metric-display": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "metric-sub": ["13px", { "lineHeight": "18px", "fontWeight": "500" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-5 pb-6"><div class="flex flex-col gap-6"><div class="px-6 flex items-center gap-3"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary"><span class="material-symbols-outlined text-[20px]">potted_plant</span></div><div class="flex flex-col"><span class="font-label-lg text-label-lg text-primary tracking-tight font-semibold">Ceylon IoT</span><span class="font-label-sm text-label-sm text-on-surface-variant">Withering Telemetry</span></div></div><div class="px-4"><div class="px-2 pb-2"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Operations</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-[0_1px_3px_rgba(27,67,50,0.08)]"><a class="px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="dashboard-overview" href="#">Dashboard (Overview)</a><a class="px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="factory-monitoring" href="#">Factory Monitoring</a><a class="px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="heating-bay" href="#">Heating Bay</a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="alerts-notifications" href="#">Alerts &amp; Notifications</a></nav></div><div class="px-4"><div class="px-2 pb-2"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">System Config</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-[0_1px_3px_rgba(27,67,50,0.08)]"><a aria-current="page" class="px-3 py-2.5 rounded-lg transition-all bg-primary-container text-on-primary font-semibold shadow-[0_1px_3px_rgba(27,67,50,0.08)]" data-path="user-management" href="#">User Management</a><a class="px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="parameters" href="#">Parameters</a></nav></div></div><div class="px-4"><div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface font-semibold">Gateway Node</span><span class="font-label-sm text-label-sm text-secondary font-medium">Online • 99.8%</span></div><span class="material-symbols-outlined text-[18px] text-secondary">sensors</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter-desktop flex items-center justify-between"><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg text-on-surface"><span class="material-symbols-outlined text-[18px] text-secondary">domain</span><span class="font-label-md text-label-md font-semibold">St. Clair Tea Estate</span><span class="material-symbols-outlined text-[16px] text-outline">unfold_more</span></div><span class="font-label-sm text-label-sm text-outline">Div. No. 03 • Trough Hall B</span></div><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>Live Telemetry</div><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-surface-container-high"></div><div class="flex items-center gap-3 pl-1"><div class="flex flex-col items-end"><span class="font-label-md text-label-md font-semibold text-on-surface">Rohan P.</span><span class="font-label-sm text-label-sm text-outline">Factory Manager</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button class="p-1 text-on-surface-variant hover:text-on-surface transition-colors" title="Switch view profile" type="button"><span class="material-symbols-outlined text-[18px]">swap_vert</span></button></div></div></header><main class="w-full pt-16 px-gutter-desktop min-h-screen bg-background" style="background-color: rgb(244, 247, 251);"><div class="flex flex-col w-full">
+<!-- Micro Top Context / Breadcrumb -->
+<div class="flex items-center justify-between py-space-sm mb-space-sm">
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back to Dashboard</span>
+</a>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Active Node Sync: Zone 4 (Nuwara Eliya Gateway)</span>
+</div>
+</div>
+<!-- Header & KPI Band -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg mb-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">Role-Based Access Control</span>
+<span class="font-label-sm text-label-sm text-outline">v2.4.1</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">User Management</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+        Manage plant access tokens, supervisory credentials, and trough bay operational allocations across high-elevation tea factories.
+      </p>
+</div>
+<!-- Quick Operational KPIs -->
+<div class="flex flex-wrap items-center gap-2.5"><div class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-surface-container-lowest shadow-[0_1px_4px_rgba(11,60,93,0.06)] border border-[#e2e8f0]"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #e0f2fe; color: #0369a1;"><span class="material-symbols-outlined text-[19px]">group</span></div><div class="flex flex-col pr-1"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Total</span><span class="font-label-md text-label-md font-bold text-[#0b1c30]">8 Accounts</span></div></div><div class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-surface-container-lowest shadow-[0_1px_4px_rgba(11,60,93,0.06)] border border-[#e2e8f0]"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-white" style="background: linear-gradient(135deg, #0b3c5d, #1e40af);"><span class="material-symbols-outlined text-[19px]">verified_user</span></div><div class="flex flex-col pr-1"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Admins</span><span class="font-label-md text-label-md font-bold text-[#0b3c5d]">2 Global</span></div></div><div class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-surface-container-lowest shadow-[0_1px_4px_rgba(27,67,50,0.04)] border border-[#e2e8f0]"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #e8f5e9; color: #1b4332;"><span class="material-symbols-outlined text-[19px]">engineering</span></div><div class="flex flex-col pr-1"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Managers</span><span class="font-label-md text-label-md font-bold text-[#1b4332]">6 Bay Leads</span></div></div><div class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-white shadow-[0_2px_6px_rgba(17,108,74,0.18)]" style="background: linear-gradient(135deg, rgb(27, 67, 50), rgb(16, 185, 129));"><span class="w-2 h-2 rounded-full bg-white animate-pulse ml-0.5"></span><span class="font-label-md text-label-md font-bold pr-1">7 Active</span></div></div>
+</div>
+<!-- Operational Filter / Action Bar -->
+<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md p-space-md bg-surface-container-lowest rounded-xl shadow-[0_1px_4px_rgba(27,67,50,0.03)] mb-space-md"><div class="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-space-sm"><div class="relative flex-1 min-w-[260px]"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#0b3c5d] text-[20px] pointer-events-none">search</span><input class="w-full pl-9 pr-4 py-2 bg-surface rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline border border-[#e2e8f0] focus:outline-none focus:bg-surface-container-lowest focus:border-[#0284c7] focus:shadow-[0_0_0_3px_rgba(2,132,199,0.15)] transition-all" id="user-search" placeholder="Search by superintendent, email, or estate..." type="text"></div><div class="relative"><select class="w-full sm:w-auto appearance-none pl-3 pr-8 py-2 bg-surface rounded-lg font-label-md text-label-md text-on-surface cursor-pointer border border-[#e2e8f0] focus:outline-none focus:border-[#0284c7] focus:shadow-[0_0_0_3px_rgba(2,132,199,0.15)] transition-all" id="role-filter"><option value="all">All Roles (Admin &amp; Manager)</option><option value="Admin">Administrator Only</option><option value="Manager">Estate Manager Only</option></select><span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">expand_more</span></div><div class="relative"><select class="w-full sm:w-auto appearance-none pl-3 pr-8 py-2 bg-surface rounded-lg font-label-md text-label-md text-on-surface cursor-pointer border border-[#e2e8f0] focus:outline-none focus:border-[#0284c7] focus:shadow-[0_0_0_3px_rgba(2,132,199,0.15)] transition-all" id="status-filter"><option value="all">All Statuses</option><option value="Active">Active Credentials</option><option value="Deactivated">Deactivated</option></select><span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">expand_more</span></div></div><div class="flex items-center gap-2"><button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-white font-label-md text-label-md font-semibold hover:opacity-95 transition-all shadow-[0_2px_8px_rgba(11,60,93,0.24)] active:scale-[0.98]" id="open-modal-btn" style="background: linear-gradient(135deg, #0b3c5d 0%, #1b4332 100%);" type="button"><span class="material-symbols-outlined text-[18px]">person_add</span><span>Add User</span></button></div></div>
+<!-- Users Table Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_1px_3px_rgba(27,67,50,0.04),0_1px_2px_rgba(27,67,50,0.02)] overflow-hidden mb-space-xl">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse" id="users-table">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-4 font-semibold">User</th>
+<th class="py-3 px-4 font-semibold">Email Address</th>
+<th class="py-3 px-4 font-semibold">Role</th>
+<th class="py-3 px-4 font-semibold">Assigned Factory / Division</th>
+<th class="py-3 px-4 font-semibold">Status</th>
+<th class="py-3 px-4 font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-md text-body-md text-on-surface" id="users-table-body"><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Admin" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg text-white flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background: linear-gradient(135deg, #0b3c5d, #1e40af);">RP</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Rohan Perera</span><span class="font-label-sm text-label-sm text-outline">@rperera · Sri Lanka Central</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">rohan.perera@ceyloniot.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e0f2fe; color: #0b3c5d;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #0284c7;"></span>Admin</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #0b3c5d;">corporate_fare</span><span class="font-label-md text-label-md text-on-surface user-factory">All Factories (Global)</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" title="Edit Permissions" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Audit Log" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Manager" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background-color: #e8f5e9; color: #1b4332;">KD</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Kaveen Dissanayake</span><span class="font-label-sm text-label-sm text-outline">@kdissanayake · Senior Chemist</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">k.dissanayake@stclairtea.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e8f5e9; color: #1b4332;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #10b981;"></span>Manager</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #1b4332;">domain</span><span class="font-label-md text-label-md text-on-surface user-factory">St. Clair - Central Estate</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Manager" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background-color: #e8f5e9; color: #1b4332;">AJ</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Anoma Jayawardena</span><span class="font-label-sm text-label-sm text-outline">@ajayawardena · Quality Master</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">anoma.j@dimbulatea.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e8f5e9; color: #1b4332;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #10b981;"></span>Manager</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #1b4332;">domain</span><span class="font-label-md text-label-md text-on-surface user-factory">Dimbula Valley Estate</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Admin" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg text-white flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background: linear-gradient(135deg, #0b3c5d, #1e40af);">SR</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Suresh Ratnayake</span><span class="font-label-sm text-label-sm text-outline">@sratnayake · Field Operations</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">suresh.r@ceyloniot.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e0f2fe; color: #0b3c5d;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #0284c7;"></span>Admin</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #0b3c5d;">corporate_fare</span><span class="font-label-md text-label-md text-on-surface user-factory">All Factories (Global)</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Manager" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background-color: #e8f5e9; color: #1b4332;">CS</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Chaminda Silva</span><span class="font-label-sm text-label-sm text-outline">@csilva · Trough Lead</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">chaminda.s@stclairtea.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e8f5e9; color: #1b4332;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #10b981;"></span>Manager</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #1b4332;">domain</span><span class="font-label-md text-label-md text-on-surface user-factory">St. Clair - Trough Hall B</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group" data-role="Manager" data-status="Active"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center font-label-md text-label-md font-bold shadow-sm" style="background-color: #e8f5e9; color: #1b4332;">DW</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Dinuka Wickramasinghe</span><span class="font-label-sm text-label-sm text-outline">@dwickrama · Moisture Control</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">dinuka.w@nuwaraeliya.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: #e8f5e9; color: #1b4332;"><span class="w-1.5 h-1.5 rounded-full" style="background-color: #10b981;"></span>Manager</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]" style="color: #1b4332;">domain</span><span class="font-label-md text-label-md text-on-surface user-factory">Nuwara Eliya Estate Div 01</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold status-pill" style="background-color: #d1fae5; color: #065f46;"><span class="w-2 h-2 rounded-full" style="background-color: #10b981;"></span><span class="status-text">Active</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded hover:bg-surface-container font-label-md text-label-md transition-colors" style="color: #0b3c5d;" type="button">Edit</button><button class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors" onclick="toggleUserStatus(this)" type="button">Deactivate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr><tr class="hover:bg-surface-container-low/70 transition-colors group opacity-80" data-role="Manager" data-status="Deactivated"><td class="py-3.5 px-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-lg bg-surface-container-high text-outline flex items-center justify-center font-label-md text-label-md font-bold">MF</div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">Malith Fernando</span><span class="font-label-sm text-label-sm text-outline">@mfernando · Former Shift Sup.</span></div></div></td><td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">malith.f@kandyoft.lk</td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">Manager</span></td><td class="py-3.5 px-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">domain</span><span class="font-label-md text-label-md text-outline user-factory">Kandy Highland Factory</span></div></td><td class="py-3.5 px-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-outline font-label-sm text-label-sm font-semibold status-pill"><span class="w-2 h-2 rounded-full bg-outline"></span><span class="status-text">Deactivated</span></span></td><td class="py-3.5 px-4 text-right"><div class="inline-flex items-center gap-1 justify-end"><button class="px-2 py-1 rounded text-outline hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">Edit</button><button class="px-2 py-1 rounded hover:bg-secondary-container font-label-md text-label-md transition-colors font-semibold" onclick="toggleUserStatus(this)" style="color: #10b981;" type="button">Activate</button><button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></td></tr></tbody>
+</table>
+</div>
+<!-- Table Footer / Audit Note -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 bg-surface-container-low/50">
+<span class="font-label-sm text-label-sm text-outline">
+        Showing 7 registered estate operators · Telemetry sync continuous
+      </span>
+<div class="flex items-center gap-3">
+<button class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+          Export Audit Manifest (.CSV)
+        </button>
+</div>
+</div>
+</div>
+<!-- Add User Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm hidden transition-opacity" id="modal-backdrop">
+<div class="bg-surface-container-lowest rounded-2xl shadow-[0_20px_40px_rgba(11,28,48,0.18)] max-w-lg w-full p-6 relative flex flex-col gap-5 transform transition-all scale-95 opacity-0" id="modal-card">
+<!-- Modal Header -->
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Add New User</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Create an operator account and assign estate factory permissions.
+          </p>
+</div>
+<button class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" id="close-modal-btn" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Form Body -->
+<form class="flex flex-col gap-4" id="add-user-form">
+<!-- 1. Full Name -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="new-full-name">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">badge</span>
+<input class="w-full pl-9 pr-3.5 py-2.5 bg-surface rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_rgba(27,67,50,0.2)] transition-all" id="new-full-name" name="fullName" placeholder="e.g. Priyantha Senanayake" required="" type="text">
+</div>
+</div>
+<!-- 2. Email Address -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="new-email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">mail</span>
+<input class="w-full pl-9 pr-3.5 py-2.5 bg-surface rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_rgba(27,67,50,0.2)] transition-all" id="new-email" name="email" placeholder="e.g. p.senanayake@estate.lk" required="" type="email">
+</div>
+</div>
+<!-- 3. Role Selection -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface">Role Assignment</label>
+<div class="grid grid-cols-2 gap-3">
+<!-- Manager Radio Card -->
+<label class="relative flex flex-col p-3 rounded-xl bg-surface hover:bg-surface-container-low cursor-pointer transition-all role-option" id="role-label-manager">
+<input checked="" class="peer sr-only" name="role" onchange="toggleFactorySelector(true)" type="radio" value="Manager">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface">Manager</span>
+<span class="material-symbols-outlined text-[18px] text-secondary peer-checked:opacity-100 opacity-0">check_circle</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Factory telemetry &amp; withering bay control.</span>
+<div class="absolute inset-0 rounded-xl pointer-events-none peer-checked:shadow-[0_0_0_2px_#116c4a]"></div>
+</label>
+<!-- Admin Radio Card -->
+<label class="relative flex flex-col p-3 rounded-xl bg-surface hover:bg-surface-container-low cursor-pointer transition-all role-option" id="role-label-admin">
+<input class="peer sr-only" name="role" onchange="toggleFactorySelector(false)" type="radio" value="Admin">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface">Admin</span>
+<span class="material-symbols-outlined text-[18px] text-secondary peer-checked:opacity-100 opacity-0">check_circle</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Full system configuration &amp; user control.</span>
+<div class="absolute inset-0 rounded-xl pointer-events-none peer-checked:shadow-[0_0_0_2px_#116c4a]"></div>
+</label>
+</div>
+</div>
+<!-- 4. Factory Assignment (shown for Manager) -->
+<div class="flex flex-col gap-1.5 transition-all" id="factory-assignment-group">
+<label class="font-label-md text-label-md text-on-surface" for="new-factory">Assigned Tea Factory</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">factory</span>
+<select class="w-full appearance-none pl-9 pr-8 py-2.5 bg-surface rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_rgba(27,67,50,0.2)] transition-all" id="new-factory" name="factory">
+<option value="St. Clair - Central Estate">St. Clair - Central Estate</option>
+<option value="Dimbula Valley Estate">Dimbula Valley Estate</option>
+<option value="Nuwara Eliya Estate Div 01">Nuwara Eliya Estate Div 01</option>
+<option value="Kandy Highland Factory">Kandy Highland Factory</option>
+<option value="St. Clair - Trough Hall B">St. Clair - Trough Hall B</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Modal Footer Actions -->
+<div class="flex items-center justify-end gap-3 pt-3 mt-1">
+<button class="px-4 py-2 rounded-lg bg-surface text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors" id="cancel-modal-btn" type="button">
+            Cancel
+          </button>
+<button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold hover:bg-primary transition-all shadow-[0_2px_6px_rgba(27,67,50,0.16)]" type="submit">
+<span class="material-symbols-outlined text-[18px]">check</span>
+<span>Create User</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script>
+  // Filter Functionality
+  const searchInput = document.getElementById('user-search');
+  const roleFilter = document.getElementById('role-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const tableRows = document.querySelectorAll('#users-table-body tr');
+
+  function applyFilters() {
+    const query = searchInput.value.toLowerCase();
+    const selectedRole = roleFilter.value;
+    const selectedStatus = statusFilter.value;
+
+    tableRows.forEach(row => {
+      const name = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
+      const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
+      const factory = row.querySelector('.user-factory')?.textContent.toLowerCase() || '';
+      const rowRole = row.getAttribute('data-role');
+      const rowStatus = row.getAttribute('data-status');
+
+      const matchesSearch = name.includes(query) || email.includes(query) || factory.includes(query);
+      const matchesRole = (selectedRole === 'all' || rowRole === selectedRole);
+      const matchesStatus = (selectedStatus === 'all' || rowStatus === selectedStatus);
+
+      if (matchesSearch && matchesRole && matchesStatus) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener('input', applyFilters);
+  if (roleFilter) roleFilter.addEventListener('change', applyFilters);
+  if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+
+  // Status Toggle Micro-Interaction
+  function toggleUserStatus(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+    const currentStatus = row.getAttribute('data-status');
+    const pill = row.querySelector('.status-pill');
+    const textSpan = row.querySelector('.status-text');
+    const dot = pill.querySelector('span:first-child');
+
+    if (currentStatus === 'Active') {
+      row.setAttribute('data-status', 'Deactivated');
+      row.classList.add('opacity-80');
+      btn.textContent = 'Activate';
+      btn.className = 'px-2 py-1 rounded text-secondary hover:bg-secondary-container font-label-md text-label-md transition-colors';
+      pill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-outline font-label-sm text-label-sm font-semibold status-pill';
+      dot.className = 'w-2 h-2 rounded-full bg-outline';
+      textSpan.textContent = 'Deactivated';
+    } else {
+      row.setAttribute('data-status', 'Active');
+      row.classList.remove('opacity-80');
+      btn.textContent = 'Deactivate';
+      btn.className = 'px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors';
+      pill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold status-pill';
+      dot.className = 'w-2 h-2 rounded-full bg-secondary';
+      textSpan.textContent = 'Active';
+    }
+  }
+
+  // Modal Dialog Handlers
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modalCard = document.getElementById('modal-card');
+  const openModalBtn = document.getElementById('open-modal-btn');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const cancelModalBtn = document.getElementById('cancel-modal-btn');
+  const factoryGroup = document.getElementById('factory-assignment-group');
+
+  function openModal() {
+    modalBackdrop.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      modalCard.classList.remove('scale-95', 'opacity-0');
+      modalCard.classList.add('scale-100', 'opacity-100');
+    });
+  }
+
+  function closeModal() {
+    modalCard.classList.remove('scale-100', 'opacity-100');
+    modalCard.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+      modalBackdrop.classList.add('hidden');
+    }, 150);
+  }
+
+  function toggleFactorySelector(isManager) {
+    if (isManager) {
+      factoryGroup.classList.remove('hidden');
+    } else {
+      factoryGroup.classList.add('hidden');
+    }
+  }
+
+  if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+  // Close modal when clicking backdrop outside dialog card
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+  }
+
+  // Form Submission
+  const addUserForm = document.getElementById('add-user-form');
+  if (addUserForm) {
+    addUserForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('new-full-name').value;
+      const email = document.getElementById('new-email').value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+      const factory = role === 'Admin' ? 'All Factories (Global)' : document.getElementById('new-factory').value;
+
+      // Extract initials
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'OP';
+
+      const tbody = document.getElementById('users-table-body');
+      const newRow = document.createElement('tr');
+      newRow.className = 'hover:bg-surface-container-low/70 transition-colors group';
+      newRow.setAttribute('data-role', role);
+      newRow.setAttribute('data-status', 'Active');
+
+      const roleBadge = role === 'Admin' 
+        ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Admin</span>`
+        : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">Manager</span>`;
+
+      const factoryIcon = role === 'Admin' ? 'corporate_fare' : 'domain';
+      const avatarBg = role === 'Admin' ? 'bg-primary-container text-on-primary' : 'bg-surface-container text-secondary';
+
+      newRow.innerHTML = `
+        <td class="py-3.5 px-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg ${avatarBg} flex items-center justify-center font-label-md text-label-md font-bold">
+              ${initials}
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-label-md text-label-md font-bold text-on-surface truncate user-name">${name}</span>
+              <span class="font-label-sm text-label-sm text-outline">@${name.toLowerCase().replace(/\\s+/g, '')} · Assigned Operator</span>
+            </div>
+          </div>
+        </td>
+        <td class="py-3.5 px-4 font-body-md text-body-md text-on-surface-variant user-email">
+          ${email}
+        </td>
+        <td class="py-3.5 px-4">
+          ${roleBadge}
+        </td>
+        <td class="py-3.5 px-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-secondary">${factoryIcon}</span>
+            <span class="font-label-md text-label-md text-on-surface user-factory">${factory}</span>
+          </div>
+        </td>
+        <td class="py-3.5 px-4">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold status-pill">
+            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+            <span class="status-text">Active</span>
+          </span>
+        </td>
+        <td class="py-3.5 px-4 text-right">
+          <div class="inline-flex items-center gap-1 justify-end">
+            <button type="button" class="px-2 py-1 rounded text-primary hover:bg-surface-container font-label-md text-label-md transition-colors">
+              Edit
+            </button>
+            <button type="button" onclick="toggleUserStatus(this)" class="px-2 py-1 rounded text-outline hover:text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors">
+              Deactivate
+            </button>
+            <button type="button" class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors">
+              <span class="material-symbols-outlined text-[18px]">more_vert</span>
+            </button>
+          </div>
+        </td>
+      `;
+
+      tbody.insertBefore(newRow, tbody.firstChild);
+      addUserForm.reset();
+      closeModal();
+    });
+  }
+</script></main></div>
+
+</body></html>
