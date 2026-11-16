@@ -1,21 +1,32 @@
+"use client";
+
+import { use } from "react";
 import Link from "next/link";
-import { ArrowLeft, Wifi, Sliders, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Wifi, Sliders, CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
+import { useTelemetryRealtime } from "@/context/telemetry-context";
 import { mockTroughs } from "@/lib/mock-data";
 import { AnalogGauge } from "@/components/ui/analog-gauge";
 import { DepressionTargetBar } from "@/components/ui/depression-target-bar";
 import { TemperatureTrendChart } from "@/components/charts/temperature-trend-chart";
 
-export default async function TroughDetailsPage({
+export default function TroughDetailsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const trough = mockTroughs.find((t) => t.device_code === id) || mockTroughs[2];
+  const { id } = use(params);
+  const { troughs } = useTelemetryRealtime();
+
+  const liveTrough = troughs.find((t) => t.device_code === id || t.id === id);
+  const fallbackTrough = mockTroughs.find((t) => t.device_code === id) || mockTroughs[0];
+  const trough = liveTrough || fallbackTrough;
 
   const isSensorFault = trough.status === "SENSOR_FAULT";
+  const isOffline = trough.status === "OFFLINE";
   const isWarning =
-    trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 5.0 || trough.delta < 3.0));
+    !isSensorFault &&
+    !isOffline &&
+    (trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 5.0 || trough.delta < 3.0)));
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -38,6 +49,11 @@ export default async function TroughDetailsPage({
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                 Sensor Fault (Probes Disconnected)
               </span>
+            ) : isOffline ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                Waiting for Telemetry
+              </span>
             ) : isWarning ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
@@ -53,10 +69,12 @@ export default async function TroughDetailsPage({
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white shadow-xs border border-slate-200 self-start sm:self-auto text-[11px]">
-          <Wifi className="w-3.5 h-3.5 text-blue-600" />
+          <Wifi className={`w-3.5 h-3.5 ${isSensorFault ? "text-rose-600" : isOffline ? "text-slate-400" : "text-blue-600"}`} />
           <span className="text-slate-500 font-medium">
             Updated {trough.last_seen_at} •{" "}
-            <span className="text-blue-700 font-semibold">Sensor Connected</span>
+            <span className={`font-semibold ${isSensorFault ? "text-rose-700" : isOffline ? "text-slate-600" : "text-blue-700"}`}>
+              {isSensorFault ? "Probe Fault" : isOffline ? "Awaiting Node" : "Sensor Connected"}
+            </span>
           </span>
         </div>
       </div>
@@ -64,10 +82,10 @@ export default async function TroughDetailsPage({
       {/* Main Telemetry Grid: 3 Clean, Compact Cards (4 + 4 + 4 = 12 cols) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: Dry Bulb Temperature */}
-        <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex flex-col items-center justify-between">
+        <div className={`bg-white rounded-xl p-5 shadow-xs border flex flex-col items-center justify-between ${isSensorFault ? "border-rose-200 ring-1 ring-rose-100" : "border-slate-200"}`}>
           <div className="w-full flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#1B4332]" />
+              <span className={`w-2.5 h-2.5 rounded-full ${isSensorFault ? "bg-rose-500" : "bg-[#1B4332]"}`} />
               <span className="text-[14px] font-bold text-[#0B1C30]">
                 Dry Temperature
               </span>
@@ -83,15 +101,15 @@ export default async function TroughDetailsPage({
             max={50}
             unit="°C"
             label="Dry Bulb Temperature"
-            color="#1B4332"
+            color={isSensorFault ? "#e11d48" : "#1B4332"}
           />
         </div>
 
         {/* Card 2: Wet Bulb Temperature */}
-        <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex flex-col items-center justify-between">
+        <div className={`bg-white rounded-xl p-5 shadow-xs border flex flex-col items-center justify-between ${isSensorFault ? "border-rose-200 ring-1 ring-rose-100" : "border-slate-200"}`}>
           <div className="w-full flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7]" />
+              <span className={`w-2.5 h-2.5 rounded-full ${isSensorFault ? "bg-rose-500" : "bg-[#0284C7]"}`} />
               <span className="text-[14px] font-bold text-[#0B1C30]">
                 Wet Temperature
               </span>
@@ -107,12 +125,12 @@ export default async function TroughDetailsPage({
             max={50}
             unit="°C"
             label="Wet Bulb Temperature"
-            color="#0284C7"
+            color={isSensorFault ? "#e11d48" : "#0284C7"}
           />
         </div>
 
         {/* Card 3: Wet-Bulb Depression (ΔT = Dry - Wet) */}
-        <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex flex-col justify-between">
+        <div className={`bg-white rounded-xl p-5 shadow-xs border flex flex-col justify-between ${isSensorFault ? "border-rose-200 ring-1 ring-rose-100" : "border-slate-200"}`}>
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] uppercase tracking-wider text-[#0B3C5D] font-bold">
@@ -129,13 +147,19 @@ export default async function TroughDetailsPage({
 
             <div className="my-3 flex flex-col items-start gap-1.5">
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-amber-900 tracking-tight tabular-nums">
+                <span className={`text-4xl font-bold tracking-tight tabular-nums ${isSensorFault ? "text-rose-700" : isOffline ? "text-slate-400" : "text-amber-900"}`}>
                   {trough.delta !== null && trough.delta !== undefined ? `${trough.delta.toFixed(1)}°C` : "-- °C"}
                 </span>
-                <span className="text-[12px] text-amber-700 font-semibold">
-                  ΔT Measured
+                <span className="text-[12px] text-slate-500 font-semibold">
+                  {isSensorFault ? "Probes Disconnected" : isOffline ? "Waiting" : "ΔT Measured"}
                 </span>
               </div>
+              {isSensorFault && (
+                <div className="px-2.5 py-1 rounded-md bg-rose-50 text-rose-800 text-[11px] font-semibold flex items-center gap-1.5 border border-rose-200">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span>Physical PT100 temperature sensors disconnected</span>
+                </div>
+              )}
               {isWarning && (
                 <div className="px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-[11px] font-semibold flex items-center gap-1.5 border border-amber-200">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
@@ -182,8 +206,8 @@ export default async function TroughDetailsPage({
             <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
               Diagnostic Status
             </span>
-            <span className="text-[12px] text-[#116c4a] font-semibold">
-              Sensor Health: Optimal • Bus Latency 14ms
+            <span className={`text-[12px] font-semibold ${isSensorFault ? "text-rose-700" : isOffline ? "text-slate-500" : "text-[#116c4a]"}`}>
+              {isSensorFault ? "Hardware Online • Sensor Probe Fault" : isOffline ? "Hardware Awaiting Packet" : "Sensor Health: Optimal • Bus Latency 14ms"}
             </span>
           </div>
         </div>

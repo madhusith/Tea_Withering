@@ -148,8 +148,8 @@ export default function DashboardOverviewPage() {
       {/* Withering Troughs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {troughs.map((trough) => {
-          const isFault = trough.status === "SENSOR_FAULT" || (trough.temp_dry === null && trough.temp_wet === null);
           const isOffline = trough.status === "OFFLINE";
+          const isFault = trough.status === "SENSOR_FAULT";
           const isWarning =
             !isFault &&
             !isOffline &&
@@ -196,21 +196,21 @@ export default function DashboardOverviewPage() {
 
                 {/* Dual Temperatures: Dry Bulb & Wet Bulb */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : "bg-[#eff4ff]"}`}>
+                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : isOffline ? "bg-slate-50" : "bg-[#eff4ff]"}`}>
                     <span className="text-[11px] text-slate-500 block">Dry Bulb</span>
                     <span
                       className={`text-[16px] font-bold tabular-nums ${
-                        isFault ? "text-rose-700" : "text-[#0b1c30]"
+                        isFault ? "text-rose-700" : isOffline ? "text-slate-400" : "text-[#0b1c30]"
                       }`}
                     >
                       {trough.temp_dry !== null ? `${trough.temp_dry.toFixed(1)}°C` : "-- °C"}
                     </span>
                   </div>
-                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : "bg-[#eff4ff]"}`}>
+                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : isOffline ? "bg-slate-50" : "bg-[#eff4ff]"}`}>
                     <span className="text-[11px] text-slate-500 block">Wet Bulb</span>
                     <span
                       className={`text-[16px] font-bold tabular-nums ${
-                        isFault ? "text-rose-700" : "text-[#0b1c30]"
+                        isFault ? "text-rose-700" : isOffline ? "text-slate-400" : "text-[#0b1c30]"
                       }`}
                     >
                       {trough.temp_wet !== null ? `${trough.temp_wet.toFixed(1)}°C` : "-- °C"}
@@ -223,6 +223,8 @@ export default function DashboardOverviewPage() {
                   className={`p-3 rounded-lg border flex flex-col gap-1 ${
                     isFault
                       ? "bg-rose-50/50 border-rose-200"
+                      : isOffline
+                      ? "bg-slate-50/60 border-slate-200"
                       : isWarning
                       ? "bg-amber-50/60 border-amber-200"
                       : "bg-[#f8f9ff] border-blue-100"
@@ -231,7 +233,7 @@ export default function DashboardOverviewPage() {
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-[11px] uppercase tracking-wider font-bold ${
-                        isFault ? "text-rose-800" : "text-[#0b3c5d]"
+                        isFault ? "text-rose-800" : isOffline ? "text-slate-600" : "text-[#0b3c5d]"
                       }`}
                     >
                       Depression (ΔT)
@@ -243,6 +245,8 @@ export default function DashboardOverviewPage() {
                       className={`text-2xl font-bold tabular-nums ${
                         isFault
                           ? "text-rose-700"
+                          : isOffline
+                          ? "text-slate-400"
                           : isWarning
                           ? "text-amber-800"
                           : "text-[#1b4332]"
@@ -251,7 +255,7 @@ export default function DashboardOverviewPage() {
                       {trough.delta !== null ? `${trough.delta.toFixed(1)}°C` : "-- °C"}
                     </span>
                     <span className="text-[11px] text-slate-500">
-                      {isFault ? "Probes Disconnected" : "Difference"}
+                      {isFault ? "Probes Disconnected" : isOffline ? "Waiting for Node" : "Difference"}
                     </span>
                   </div>
                 </div>
