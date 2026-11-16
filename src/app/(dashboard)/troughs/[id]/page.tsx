@@ -13,7 +13,9 @@ export default async function TroughDetailsPage({
   const { id } = await params;
   const trough = mockTroughs.find((t) => t.device_code === id) || mockTroughs[2];
 
-  const isWarning = trough.status === "WARNING" || trough.delta > 5.0 || trough.delta < 3.0;
+  const isSensorFault = trough.status === "SENSOR_FAULT";
+  const isWarning =
+    trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 5.0 || trough.delta < 3.0));
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -31,7 +33,12 @@ export default async function TroughDetailsPage({
             <h1 className="text-2xl sm:text-3xl font-bold text-[#012d1d] tracking-tight">
               {trough.name} Monitoring
             </h1>
-            {isWarning ? (
+            {isSensorFault ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                Sensor Fault (Probes Disconnected)
+              </span>
+            ) : isWarning ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
                 Warning (High Depression)
@@ -123,7 +130,7 @@ export default async function TroughDetailsPage({
             <div className="my-3 flex flex-col items-start gap-1.5">
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-bold text-amber-900 tracking-tight tabular-nums">
-                  {trough.delta.toFixed(1)}°C
+                  {trough.delta !== null && trough.delta !== undefined ? `${trough.delta.toFixed(1)}°C` : "-- °C"}
                 </span>
                 <span className="text-[12px] text-amber-700 font-semibold">
                   ΔT Measured

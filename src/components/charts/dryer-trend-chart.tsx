@@ -16,7 +16,7 @@ import { mockDryerHistory } from "@/lib/mock-data";
 import { TrendingUp } from "lucide-react";
 
 interface DryerTrendChartProps {
-  currentTemp: number;
+  currentTemp: number | null;
   targetTemp: number;
 }
 
@@ -45,7 +45,7 @@ export function DryerTrendChart({
         <div className="flex flex-wrap items-center gap-4 text-[12px]">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] font-semibold text-[#1B4332]">
             <span className="w-2.5 h-2.5 rounded-full bg-[#116C4A]" />
-            <span>Supply Air Temp ({currentTemp}°C)</span>
+            <span>Supply Air Temp ({currentTemp !== null ? `${currentTemp}°C` : "--"})</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] font-semibold text-[#0369A1]">
             <span className="w-3.5 h-0.5 border-t-2 border-dashed border-[#0284C7]" />

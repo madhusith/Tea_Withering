@@ -18,13 +18,14 @@ export default async function DryerDetailsPage({
 }) {
   const { id } = await params;
   const dryer = mockDryer;
-  const variance = Math.round((dryer.temperature - dryer.target_temperature) * 10) / 10;
+  const tempVal = dryer.temperature ?? 85.0;
+  const variance = Math.round((tempVal - dryer.target_temperature) * 10) / 10;
 
   // Exact math for 0-300°C dial needle
   // Arc: -120° (0°C) to +120° (300°C), 150°C at 0° (top)
   const cx = 120;
   const cy = 125;
-  const percentage = Math.min(Math.max(dryer.temperature / 300, 0), 1);
+  const percentage = Math.min(Math.max(tempVal / 300, 0), 1);
   const angleDeg = -120 + percentage * 240;
   const angleRad = (angleDeg * Math.PI) / 180;
 
@@ -155,7 +156,7 @@ export default async function DryerDetailsPage({
             <div className="text-center -mt-2">
               <div className="inline-flex items-baseline gap-1">
                 <span className="text-3xl font-bold text-[#1b4332] tabular-nums tracking-tight">
-                  {dryer.temperature.toFixed(1)}
+                  {dryer.temperature !== null ? dryer.temperature.toFixed(1) : "--"}
                 </span>
                 <span className="text-lg font-bold text-[#0284c7]">°C</span>
               </div>
@@ -203,7 +204,9 @@ export default async function DryerDetailsPage({
             <div className="flex flex-col gap-2 mb-3 text-[12px]">
               <div className="flex items-center justify-between py-1.5 px-2.5 rounded bg-slate-50 border border-slate-100">
                 <span className="text-slate-500">Current Reading</span>
-                <span className="font-bold text-[#1b4332]">{dryer.temperature.toFixed(1)}°C</span>
+                <span className="font-bold text-[#1b4332]">
+                  {dryer.temperature !== null ? `${dryer.temperature.toFixed(1)}°C` : "-- °C"}
+                </span>
               </div>
               <div className="flex items-center justify-between py-1.5 px-2.5 rounded bg-slate-50 border border-slate-100">
                 <span className="text-slate-500">Configured Setpoint</span>

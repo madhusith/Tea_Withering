@@ -1,7 +1,7 @@
 "use client";
 
 interface DepressionTargetBarProps {
-  measuredDelta: number;
+  measuredDelta: number | null;
   minTarget?: number;
   maxTarget?: number;
   maxScale?: number;
@@ -15,13 +15,19 @@ export function DepressionTargetBar({
 }: DepressionTargetBarProps) {
   const windowLeftPercent = (minTarget / maxScale) * 100;
   const windowWidthPercent = ((maxTarget - minTarget) / maxScale) * 100;
-  const markerPercent = Math.min(Math.max((measuredDelta / maxScale) * 100, 0), 100);
+  
+  const hasDelta = measuredDelta !== null && measuredDelta !== undefined && !isNaN(measuredDelta);
+  const markerPercent = hasDelta
+    ? Math.min(Math.max((measuredDelta / maxScale) * 100, 0), 100)
+    : 0;
 
-  const isAbove = measuredDelta > maxTarget;
-  const isBelow = measuredDelta < minTarget;
-  const isOptimal = !isAbove && !isBelow;
+  const isAbove = hasDelta && measuredDelta > maxTarget;
+  const isBelow = hasDelta && measuredDelta < minTarget;
+  const isOptimal = hasDelta && !isAbove && !isBelow;
 
-  const variance = isAbove
+  const variance = !hasDelta
+    ? "No Sensor Data"
+    : isAbove
     ? `+${(measuredDelta - maxTarget).toFixed(1)}°C Above Band`
     : isBelow
     ? `-${(minTarget - measuredDelta).toFixed(1)}°C Below Band`
@@ -58,15 +64,17 @@ export function DepressionTargetBar({
         />
 
         {/* Current Measured Value Marker */}
-        <div
-          className={`absolute -top-0.5 -bottom-0.5 w-2 rounded-full shadow-xs transition-all duration-500 ${
-            isOptimal ? "bg-[#116c4a]" : "bg-amber-600"
-          }`}
-          style={{
-            left: `calc(${markerPercent}% - 4px)`,
-          }}
-          title={`Measured Delta: ${measuredDelta}°C`}
-        />
+        {hasDelta && (
+          <div
+            className={`absolute -top-0.5 -bottom-0.5 w-2 rounded-full shadow-xs transition-all duration-500 ${
+              isOptimal ? "bg-[#116c4a]" : "bg-amber-600"
+            }`}
+            style={{
+              left: `calc(${markerPercent}% - 4px)`,
+            }}
+            title={`Measured Delta: ${measuredDelta}°C`}
+          />
+        )}
       </div>
 
       <div className="flex justify-between text-slate-400 text-[10px] pt-0.5">

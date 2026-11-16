@@ -215,10 +215,34 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           .filter((d) => d.type === "TROUGH")
           .map((d, index) => {
             const r = latestReadingMap.get(d.id);
-            const dry = r?.temp_dry ?? 28.0 + (index % 4) * 0.5;
-            const wet = r?.temp_wet ?? 23.8 + (index % 4) * 0.3;
-            const delta = r?.delta ?? Math.round((dry - wet) * 10) / 10;
-            const isWarn = delta > 4.8 || delta < 3.5;
+            const hasData = r && (r.temp_dry !== null || r.temp_wet !== null);
+            const isSensorFault = r && r.temp_dry === null && r.temp_wet === null;
+
+            let dry: number | null = null;
+            let wet: number | null = null;
+            let delta: number | null = null;
+            let status: "NORMAL" | "WARNING" | "CRITICAL" | "OFFLINE" | "SENSOR_FAULT" = "NORMAL";
+            let statusMsg = "Within Optimal Envelope";
+
+            if (isSensorFault) {
+              // Real readings arrived from Raspberry Pi, but PT100 probes are not connected yet
+              dry = null;
+              wet = null;
+              delta = null;
+              status = "SENSOR_FAULT";
+              statusMsg = "Sensor Fault: Probes Disconnected";
+            } else if (hasData) {
+              dry = r.temp_dry;
+              wet = r.temp_wet;
+              delta = r.delta ?? (dry !== null && wet !== null ? Math.round((dry - wet) * 10) / 10 : null);
+              const isWarn = delta !== null && (delta > 4.8 || delta < 3.5);
+              status = isWarn ? "WARNING" : "NORMAL";
+              statusMsg = isWarn ? "Depression Above Band" : "Within Optimal Envelope";
+            } else if (!r) {
+              // No readings received yet for this device
+              status = "OFFLINE";
+              statusMsg = "Waiting for Telemetry";
+            }
 
             return {
               id: d.id,
@@ -230,9 +254,9 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
               temp_dry: dry,
               temp_wet: wet,
               delta: delta,
-              status: isWarn ? ("WARNING" as const) : ("NORMAL" as const),
-              status_message: isWarn ? "Depression Above Band" : "Within Optimal Envelope",
-              last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Just now",
+              status: status as any,
+              status_message: statusMsg,
+              last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Waiting",
               sensor_dry_code: `Sensor A${index + 1}`,
               sensor_wet_code: `Sensor B${index + 1}`,
             };
@@ -323,40 +347,57 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
           const timeLabel = formatTime(newReading.captured_at || new Date().toISOString());
           setLastHeartbeat(timeLabel);
 
-          if (newReading.temp_dry !== null && newReading.temp_wet !== null) {
+          if (newReading.device_id) {
+            const isSensorFault = newReading.temp_dry === null && newReading.temp_wet === null && !newReading.temperature;
+            const hasTroughData = newReading.temp_dry !== null && newReading.temp_wet !== null;
+
             setTroughs((prev) =>
               prev.map((t) => {
                 if (t.id === newReading.device_id || t.device_code === newReading.device_code) {
-                  const delta =
-                    newReading.delta ??
-                    Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
-                  const isWarn = delta > 4.8 || delta < 3.5;
-                  return {
-                    ...t,
-                    temp_dry: newReading.temp_dry,
-                    temp_wet: newReading.temp_wet,
-                    delta: delta,
-                    status: isWarn ? "WARNING" : "NORMAL",
-                    status_message: isWarn ? "Depression Above Band" : "Within Optimal Envelope",
-                    last_seen_at: timeLabel,
-                  };
+                  if (isSensorFault) {
+                    return {
+                      ...t,
+                      temp_dry: null,
+                      temp_wet: null,
+                      delta: null,
+                      status: "SENSOR_FAULT",
+                      status_message: "Sensor Fault: Probes Disconnected",
+                      last_seen_at: timeLabel,
+                    };
+                  } else if (hasTroughData) {
+                    const delta =
+                      newReading.delta ??
+                      Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
+                    const isWarn = delta > 4.8 || delta < 3.5;
+                    return {
+                      ...t,
+                      temp_dry: newReading.temp_dry,
+                      temp_wet: newReading.temp_wet,
+                      delta: delta,
+                      status: isWarn ? "WARNING" : "NORMAL",
+                      status_message: isWarn ? "Depression Above Band" : "Within Optimal Envelope",
+                      last_seen_at: timeLabel,
+                    };
+                  }
                 }
                 return t;
               })
             );
-          } else if (newReading.temperature !== null) {
-            setDryer((prev) => {
-              if (prev.id === newReading.device_id || prev.device_code === newReading.device_code) {
-                const temp = newReading.temperature;
-                return {
-                  ...prev,
-                  temperature: temp,
-                  status: temp > 90.0 || temp < 80.0 ? "WARNING" : "NORMAL",
-                  last_seen_at: timeLabel,
-                };
-              }
-              return prev;
-            });
+
+            if (newReading.temperature !== null && newReading.temperature !== undefined) {
+              setDryer((prev) => {
+                if (prev.id === newReading.device_id || prev.device_code === newReading.device_code) {
+                  const temp = newReading.temperature;
+                  return {
+                    ...prev,
+                    temperature: temp,
+                    status: temp > 90.0 || temp < 80.0 ? "WARNING" : "NORMAL",
+                    last_seen_at: timeLabel,
+                  };
+                }
+                return prev;
+              });
+            }
           }
         }
       )

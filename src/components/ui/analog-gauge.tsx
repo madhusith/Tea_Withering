@@ -1,7 +1,7 @@
 "use client";
 
 interface AnalogGaugeProps {
-  value: number;
+  value: number | null;
   min?: number;
   max?: number;
   unit?: string;
@@ -21,7 +21,8 @@ export function AnalogGauge({
   color = "#1B4332",
 }: AnalogGaugeProps) {
   // Clamped percentage [0, 1]
-  const percentage = Math.min(Math.max((value - min) / (max - min), 0), 1);
+  const numericVal = value !== null && value !== undefined && !isNaN(value) ? value : min;
+  const percentage = Math.min(Math.max((numericVal - min) / (max - min), 0), 1);
 
   // Sweep angle: -120° (min, bottom-left) to +120° (max, bottom-right). Total 240°
   const startAngleDeg = -120;
@@ -159,8 +160,7 @@ export function AnalogGauge({
           className="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight"
           style={{ color }}
         >
-          {value.toFixed(1)}
-          {unit}
+          {value !== null && value !== undefined ? `${value.toFixed(1)}${unit}` : `-- ${unit}`}
         </span>
         {label && (
           <span className="text-[12px] text-slate-500 font-medium">{label}</span>

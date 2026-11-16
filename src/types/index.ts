@@ -16,9 +16,9 @@ export interface TroughDevice {
   type: "TROUGH";
   factory_id: string;
   gateway_id: string;
-  temp_dry: number;
-  temp_wet: number;
-  delta: number;
+  temp_dry: number | null;
+  temp_wet: number | null;
+  delta: number | null;
   status: DeviceStatus;
   status_message?: string;
   last_seen_at: string;
@@ -33,7 +33,7 @@ export interface DryerDevice {
   type: "DRYER";
   factory_id: string;
   gateway_id: string;
-  temperature: number;
+  temperature: number | null;
   target_temperature: number;
   status: DeviceStatus;
   status_message?: string;

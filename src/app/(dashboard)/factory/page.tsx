@@ -28,12 +28,13 @@ export default function FactoryMonitoringPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const normalCount = troughs.filter((t) => t.status === "NORMAL").length;
-  const warningCount = troughs.filter((t) => t.status === "WARNING").length;
+  const warningCount = troughs.filter((t) => t.status === "WARNING" || t.status === "SENSOR_FAULT").length;
 
+  const validDeltas = troughs.filter((t) => t.delta !== null && t.delta !== undefined).map((t) => t.delta as number);
   const avgDepression =
-    troughs.length > 0
-      ? (troughs.reduce((acc, t) => acc + t.delta, 0) / troughs.length).toFixed(1)
-      : "4.2";
+    validDeltas.length > 0
+      ? (validDeltas.reduce((acc, d) => acc + d, 0) / validDeltas.length).toFixed(1)
+      : "--";
 
   const handleOpenAddModal = () => {
     // Auto suggest next code
@@ -138,13 +139,20 @@ export default function FactoryMonitoringPage() {
       {/* 2. Troughs Grid: Dynamic auto-scaling grid for any number of bays */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {troughs.map((trough) => {
+          const isSensorFault = trough.status === "SENSOR_FAULT";
           const isWarning =
-            trough.status === "WARNING" || trough.delta > 4.8 || trough.delta < 3.5;
+            trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5));
 
           return (
             <div
               key={trough.device_code}
-              className="bg-white rounded-xl p-4 shadow-xs border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow relative group"
+              className={`bg-white rounded-xl p-4 shadow-xs border flex flex-col justify-between hover:shadow-md transition-shadow relative group ${
+                isSensorFault
+                  ? "border-rose-200 bg-rose-50/20"
+                  : isWarning
+                  ? "border-amber-200 bg-amber-50/20"
+                  : "border-slate-200"
+              }`}
             >
               <div>
                 {/* Bay Header */}
@@ -152,7 +160,11 @@ export default function FactoryMonitoringPage() {
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        isWarning ? "bg-amber-600 animate-pulse" : "bg-emerald-600"
+                        isSensorFault
+                          ? "bg-rose-500 animate-pulse"
+                          : isWarning
+                          ? "bg-amber-600 animate-pulse"
+                          : "bg-emerald-600"
                       }`}
                     />
                     <h2 className="text-[15px] font-bold text-[#012d1d]">
@@ -162,12 +174,14 @@ export default function FactoryMonitoringPage() {
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                        isWarning
+                        isSensorFault
+                          ? "bg-rose-50 text-rose-800 border border-rose-200"
+                          : isWarning
                           ? "bg-amber-50 text-amber-800 border border-amber-200"
                           : "bg-emerald-50 text-emerald-800 border border-emerald-200"
                       }`}
                     >
-                      {isWarning ? "Attention" : "Optimal"}
+                      {isSensorFault ? "Sensor Fault" : isWarning ? "Attention" : "Optimal"}
                     </span>
                     {!isViewer && (
                       <button
@@ -190,7 +204,7 @@ export default function FactoryMonitoringPage() {
                       Dry Bulb
                     </span>
                     <p className="text-xl font-bold text-[#1b4332] tabular-nums mt-0.5">
-                      {trough.temp_dry.toFixed(1)}°C
+                      {trough.temp_dry !== null ? `${trough.temp_dry.toFixed(1)}°C` : "-- °C"}
                     </p>
                   </div>
                   <div className="border-l border-slate-200 pl-2.5">
@@ -198,7 +212,7 @@ export default function FactoryMonitoringPage() {
                       Wet Bulb
                     </span>
                     <p className="text-xl font-bold text-[#0284c7] tabular-nums mt-0.5">
-                      {trough.temp_wet.toFixed(1)}°C
+                      {trough.temp_wet !== null ? `${trough.temp_wet.toFixed(1)}°C` : "-- °C"}
                     </p>
                   </div>
                 </div>
@@ -216,7 +230,7 @@ export default function FactoryMonitoringPage() {
                       Depression (ΔT)
                     </span>
                     <p className="text-xl font-extrabold tabular-nums leading-tight">
-                      {trough.delta.toFixed(1)}°C
+                      {trough.delta !== null ? `${trough.delta.toFixed(1)}°C` : "-- °C"}
                     </p>
                   </div>
                   <div className="text-right">
@@ -280,7 +294,7 @@ export default function FactoryMonitoringPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {troughs.map((t) => {
-                const inBand = t.delta >= 3.5 && t.delta <= 4.8;
+                const inBand = t.delta !== null && t.delta >= 3.5 && t.delta <= 4.8;
                 return (
                   <tr key={t.device_code} className="hover:bg-slate-50/60 transition-colors">
                     <td className="py-2.5 px-4 font-mono font-semibold text-slate-700">
@@ -290,23 +304,25 @@ export default function FactoryMonitoringPage() {
                       {t.name}
                     </td>
                     <td className="py-2.5 px-4 font-bold text-[#1b4332] tabular-nums">
-                      {t.temp_dry.toFixed(1)}°C
+                      {t.temp_dry !== null ? `${t.temp_dry.toFixed(1)}°C` : "--"}
                     </td>
                     <td className="py-2.5 px-4 font-bold text-[#0284c7] tabular-nums">
-                      {t.temp_wet.toFixed(1)}°C
+                      {t.temp_wet !== null ? `${t.temp_wet.toFixed(1)}°C` : "--"}
                     </td>
                     <td className="py-2.5 px-4 font-bold text-amber-900 tabular-nums">
-                      {t.delta.toFixed(1)}°C
+                      {t.delta !== null ? `${t.delta.toFixed(1)}°C` : "--"}
                     </td>
                     <td className="py-2.5 px-4">
                       <span
                         className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
-                          inBand
+                          t.delta === null
+                            ? "bg-slate-100 text-slate-600"
+                            : inBand
                             ? "bg-emerald-50 text-emerald-800"
                             : "bg-amber-50 text-amber-800"
                         }`}
                       >
-                        {inBand ? "In Target (3.5–4.8°C)" : "Deviation"}
+                        {t.delta === null ? "No Data" : inBand ? "In Target (3.5–4.8°C)" : "Deviation"}
                       </span>
                     </td>
                     <td className="py-2.5 px-4">
@@ -317,7 +333,7 @@ export default function FactoryMonitoringPage() {
                           }`}
                         />
                         <span className="font-medium text-slate-700">
-                          {t.status === "NORMAL" ? "Normal" : "Warning"}
+                          {t.status === "NORMAL" ? "Normal" : t.status === "SENSOR_FAULT" ? "Sensor Fault" : "Warning"}
                         </span>
                       </div>
                     </td>

@@ -15,8 +15,8 @@ import { mockTroughHistory } from "@/lib/mock-data";
 import { TrendingUp } from "lucide-react";
 
 interface TemperatureTrendChartProps {
-  currentDryTemp: number;
-  currentWetTemp: number;
+  currentDryTemp: number | null;
+  currentWetTemp: number | null;
 }
 
 export function TemperatureTrendChart({
@@ -41,11 +41,11 @@ export function TemperatureTrendChart({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] text-[12px] font-semibold text-[#1B4332]">
               <span className="w-2 h-2 rounded-full bg-[#1B4332]" />
-              <span>Dry Temp ({currentDryTemp}°C)</span>
+              <span>Dry Temp ({currentDryTemp !== null ? `${currentDryTemp.toFixed(1)}°C` : "--"})</span>
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] text-[12px] font-semibold text-[#0369A1]">
               <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
-              <span>Wet Temp ({currentWetTemp}°C)</span>
+              <span>Wet Temp ({currentWetTemp !== null ? `${currentWetTemp.toFixed(1)}°C` : "--"})</span>
             </div>
           </div>
         </div>

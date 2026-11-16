@@ -96,7 +96,7 @@ export default function DashboardOverviewPage() {
               </span>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-3xl font-bold text-[#012d1d] tabular-nums">
-                  {dryer.temperature.toFixed(1)}
+                  {dryer.temperature !== null ? dryer.temperature.toFixed(1) : "--"}
                 </span>
                 <span className="text-[14px] text-slate-500 font-medium">°C</span>
               </div>
@@ -148,20 +148,40 @@ export default function DashboardOverviewPage() {
       {/* Withering Troughs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {troughs.map((trough) => {
+          const isFault = trough.status === "SENSOR_FAULT" || (trough.temp_dry === null && trough.temp_wet === null);
+          const isOffline = trough.status === "OFFLINE";
           const isWarning =
-            trough.status === "WARNING" || trough.delta > 4.8 || trough.delta < 3.5;
+            !isFault &&
+            !isOffline &&
+            (trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
 
           return (
             <div
               key={trough.device_code}
-              className="group bg-white rounded-xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between border border-slate-200/70"
+              className={`group bg-white rounded-xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between border ${
+                isFault
+                  ? "border-rose-300 ring-1 ring-rose-200"
+                  : isWarning
+                  ? "border-amber-300"
+                  : "border-slate-200/70"
+              }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[16px] font-bold text-[#012d1d]">
                     {trough.name}
                   </span>
-                  {isWarning ? (
+                  {isFault ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold border border-rose-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse" />
+                      Sensor Fault
+                    </span>
+                  ) : isOffline ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                      Waiting
+                    </span>
+                  ) : isWarning ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fef3c7] text-[#92400e] text-[11px] font-bold">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#d97706] animate-pulse" />
                       Warning
@@ -176,16 +196,24 @@ export default function DashboardOverviewPage() {
 
                 {/* Dual Temperatures: Dry Bulb & Wet Bulb */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="p-2.5 rounded-lg bg-[#eff4ff]">
+                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : "bg-[#eff4ff]"}`}>
                     <span className="text-[11px] text-slate-500 block">Dry Bulb</span>
-                    <span className="text-[16px] font-bold text-[#0b1c30] tabular-nums">
-                      {trough.temp_dry.toFixed(1)}°C
+                    <span
+                      className={`text-[16px] font-bold tabular-nums ${
+                        isFault ? "text-rose-700" : "text-[#0b1c30]"
+                      }`}
+                    >
+                      {trough.temp_dry !== null ? `${trough.temp_dry.toFixed(1)}°C` : "-- °C"}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-[#eff4ff]">
+                  <div className={`p-2.5 rounded-lg ${isFault ? "bg-rose-50/60" : "bg-[#eff4ff]"}`}>
                     <span className="text-[11px] text-slate-500 block">Wet Bulb</span>
-                    <span className="text-[16px] font-bold text-[#0b1c30] tabular-nums">
-                      {trough.temp_wet.toFixed(1)}°C
+                    <span
+                      className={`text-[16px] font-bold tabular-nums ${
+                        isFault ? "text-rose-700" : "text-[#0b1c30]"
+                      }`}
+                    >
+                      {trough.temp_wet !== null ? `${trough.temp_wet.toFixed(1)}°C` : "-- °C"}
                     </span>
                   </div>
                 </div>
@@ -193,13 +221,19 @@ export default function DashboardOverviewPage() {
                 {/* Featured Metric: Calculated Wet-Bulb Depression (ΔT = Dry - Wet) */}
                 <div
                   className={`p-3 rounded-lg border flex flex-col gap-1 ${
-                    isWarning
+                    isFault
+                      ? "bg-rose-50/50 border-rose-200"
+                      : isWarning
                       ? "bg-amber-50/60 border-amber-200"
                       : "bg-[#f8f9ff] border-blue-100"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] uppercase tracking-wider font-bold text-[#0b3c5d]">
+                    <span
+                      className={`text-[11px] uppercase tracking-wider font-bold ${
+                        isFault ? "text-rose-800" : "text-[#0b3c5d]"
+                      }`}
+                    >
                       Depression (ΔT)
                     </span>
                     <span className="text-[10px] text-slate-400">Target 3.5–4.8°C</span>
@@ -207,12 +241,18 @@ export default function DashboardOverviewPage() {
                   <div className="flex items-baseline gap-2">
                     <span
                       className={`text-2xl font-bold tabular-nums ${
-                        isWarning ? "text-amber-800" : "text-[#1b4332]"
+                        isFault
+                          ? "text-rose-700"
+                          : isWarning
+                          ? "text-amber-800"
+                          : "text-[#1b4332]"
                       }`}
                     >
-                      {trough.delta.toFixed(1)}°C
+                      {trough.delta !== null ? `${trough.delta.toFixed(1)}°C` : "-- °C"}
                     </span>
-                    <span className="text-[11px] text-slate-500">Difference</span>
+                    <span className="text-[11px] text-slate-500">
+                      {isFault ? "Probes Disconnected" : "Difference"}
+                    </span>
                   </div>
                 </div>
               </div>
