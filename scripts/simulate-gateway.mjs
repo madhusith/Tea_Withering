@@ -5,7 +5,7 @@
  */
 
 const API_URL = process.env.INGESTION_API_URL || "http://localhost:3000/api/telemetry/ingest";
-const SECRET = process.env.GATEWAY_INGESTION_SECRET || "dev-gateway-secret-2026";
+const SECRET = process.env.GATEWAY_INGESTION_SECRET || "gw_ingest_kvpl_7f8a9e2d4c1b6038";
 
 async function runSimulation() {
   console.log("=================================================");

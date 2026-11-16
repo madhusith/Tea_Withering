@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Gateway Authentication Check
     const authHeader = request.headers.get("Authorization");
-    const configuredSecret = process.env.GATEWAY_INGESTION_SECRET || "dev-gateway-secret-2026";
+    const configuredSecret = process.env.GATEWAY_INGESTION_SECRET || "gw_ingest_kvpl_7f8a9e2d4c1b6038";
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
