@@ -89,7 +89,7 @@ export default function DashboardOverviewPage() {
           </div>
 
           {/* Temperature Metric Block & Link (DRYER: Single Temperature Only!) */}
-          <div className="flex items-center flex-wrap gap-8 z-10">
+          <div className="flex items-center flex-wrap gap-4 sm:gap-8 z-10 w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex flex-col">
               <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                 Current Temp
@@ -118,7 +118,7 @@ export default function DashboardOverviewPage() {
 
             <Link
               href={`/dryers/${dryer.device_code}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm ml-auto sm:ml-0"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white text-[13px] font-semibold transition-all shadow-sm w-full sm:w-auto"
               style={{
                 background:
                   "linear-gradient(135deg, rgb(11, 60, 93) 0%, rgb(30, 64, 175) 100%)",
