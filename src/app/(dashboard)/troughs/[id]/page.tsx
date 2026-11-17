@@ -178,6 +178,8 @@ export default function TroughDetailsPage({
 
       {/* Temperature Trend Chart with Time Filters */}
       <TemperatureTrendChart
+        deviceId={trough.id}
+        deviceCode={trough.device_code}
         currentDryTemp={trough.temp_dry}
         currentWetTemp={trough.temp_wet}
       />

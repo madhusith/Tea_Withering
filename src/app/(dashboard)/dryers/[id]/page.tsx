@@ -310,6 +310,7 @@ export default async function DryerDetailsPage({
 
       {/* 3. Recharts Temperature History Graph (Immediately below top row) */}
       <DryerTrendChart
+        deviceId={dryer.id}
         currentTemp={dryer.temperature}
         targetTemp={dryer.target_temperature}
       />
