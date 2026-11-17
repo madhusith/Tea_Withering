@@ -14,6 +14,7 @@ import {
   Sprout,
   ShieldAlert,
   Building2,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTelemetryRealtime } from "@/context/telemetry-context";
@@ -27,7 +28,12 @@ interface NavItem {
   badgeVariant?: "error" | "default";
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { activeAlertsCount } = useTelemetryRealtime();
   const { role, isAdmin, isManager, isViewer } = useAuth();
@@ -93,7 +99,10 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-full w-64 shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-5 pb-6 text-white"
+      className={cn(
+        "fixed left-0 top-0 h-full w-64 shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-5 pb-6 text-white transition-transform duration-200 lg:translate-x-0",
+        open ? "translate-x-0" : "-translate-x-full"
+      )}
       style={{
         background: "linear-gradient(180deg, rgb(16, 42, 30) 0%, rgb(13, 35, 25) 100%)",
         borderRight: "1px solid rgba(2, 132, 199, 0.15)",
@@ -114,6 +123,14 @@ export function Sidebar() {
             <span className="text-[14px] font-semibold tracking-tight text-white">Ceylon IoT</span>
             <span className="text-[11px] font-medium text-emerald-200/80">Withering Telemetry</span>
           </div>
+          <button
+            type="button"
+            aria-label="Close navigation"
+            onClick={onClose}
+            className="ml-auto p-2 rounded-lg text-emerald-100 hover:bg-white/10 lg:hidden"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Navigation Group: Operations */}
@@ -137,6 +154,7 @@ export function Sidebar() {
                 <Link
                   key={`${item.href}-${index}`}
                   href={item.href}
+                  onClick={onClose}
                   className={cn(
                     "flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all",
                     isActive
@@ -190,6 +208,7 @@ export function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onClose}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all",
                       isActive

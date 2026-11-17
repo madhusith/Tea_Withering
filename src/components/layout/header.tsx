@@ -15,6 +15,7 @@ import {
   MapPin,
   X,
   Radio,
+  Menu,
 } from "lucide-react";
 import { useTelemetryRealtime } from "@/hooks/use-telemetry-realtime";
 import { useAuth } from "@/context/auth-context";
@@ -23,10 +24,12 @@ import { toast } from "sonner";
 interface HeaderProps {
   currentFactoryName?: string;
   divisionName?: string;
+  onMenuToggle?: () => void;
 }
 
 export function Header({
   divisionName = "Div. No. 03 • Trough Hall B",
+  onMenuToggle,
 }: HeaderProps) {
   const {
     activeAlertsCount,
@@ -109,7 +112,7 @@ export function Header({
 
   return (
     <header
-      className="fixed top-0 left-64 right-0 h-16 z-40 px-6 sm:px-8 flex items-center justify-between backdrop-blur-md"
+      className="fixed top-0 left-0 lg:left-64 right-0 h-16 z-40 px-3 sm:px-6 lg:px-8 flex items-center justify-between backdrop-blur-md"
       style={{
         background: "rgba(255, 255, 255, 0.92)",
         borderBottom: "2px solid #0284c7",
@@ -117,7 +120,17 @@ export function Header({
       }}
     >
       {/* Left: Dynamic Multi-Factory Switcher */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        {onMenuToggle && (
+          <button
+            type="button"
+            aria-label="Open navigation"
+            onClick={onMenuToggle}
+            className="lg:hidden shrink-0 p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         {isAdmin ? (
           /* Admin can see all factories and switch */
           <div className="relative" ref={factoryMenuRef}>
@@ -131,7 +144,7 @@ export function Header({
               }}
             >
               <Building2 className="w-4 h-4 text-[#1e40af]" />
-              <span>{currentFactory?.name || "St. Clair Tea Estate"}</span>
+                <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || "St. Clair Tea Estate"}</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
             </button>
 
@@ -204,23 +217,23 @@ export function Header({
             title="Assigned Factory (Managers and Viewers cannot switch factories)"
           >
             <Building2 className="w-4 h-4 text-slate-500" />
-            <span>{currentFactory?.name || profile?.factory_name || "St. Clair Tea Estate"}</span>
-            <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded ml-1">
+            <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || profile?.factory_name || "St. Clair Tea Estate"}</span>
+            <span className="hidden sm:inline text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded ml-1">
               Assigned
             </span>
           </div>
         )}
 
-        <span className="hidden sm:inline text-[12px] text-slate-500 font-medium">
+        <span className="hidden lg:inline text-[12px] text-slate-500 font-medium truncate max-w-44">
           {currentFactory?.location || divisionName}
         </span>
       </div>
 
       {/* Right: Live Telemetry, Notifications & User Info */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1 sm:gap-3 lg:gap-4 shrink-0">
         {/* Live Telemetry Pill */}
         <div
-          className={`flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold ${
+          className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold ${
             isConnected ? "bg-[#e0f2fe] text-[#0369a1]" : "bg-amber-50 text-amber-800"
           }`}
         >
