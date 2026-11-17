@@ -322,7 +322,7 @@ export function Header({
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
-                    <span>🛡️ Estate Admin</span>
+                    <span>Estate Admin</span>
                     {role === "admin" && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                   <button
@@ -333,7 +333,7 @@ export function Header({
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
-                    <span>🏭 Factory Manager</span>
+                    <span>Factory Manager</span>
                     {role === "manager" && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                   <button
@@ -344,7 +344,7 @@ export function Header({
                     }}
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded hover:bg-slate-50 text-slate-700 text-left cursor-pointer"
                   >
-                    <span>👁️ Quality Viewer</span>
+                    <span>Quality Viewer</span>
                     {role === "viewer" && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                 </div>
