@@ -204,44 +204,56 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       const dbAlarms = (dbAlarmsData as any[]) || [];
 
       if (dbDevices.length > 0) {
+        const OFFLINE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes freshness window
+        const nowMs = Date.now();
         const latestReadingMap = new Map();
+        const latestValidReadingMap = new Map();
+
         dbReadings.forEach((r) => {
+          const capturedMs = r.captured_at ? new Date(r.captured_at).getTime() : 0;
+          const isRecent = capturedMs > 0 && nowMs - capturedMs <= OFFLINE_TIMEOUT_MS;
+          if (!isRecent) return; // Ignore stale readings older than 15 minutes
+
           if (!latestReadingMap.has(r.device_id)) {
             latestReadingMap.set(r.device_id, r);
+          }
+          const hasValidTemp = r.temp_dry !== null || r.temp_wet !== null || r.temperature !== null;
+          if (hasValidTemp && !latestValidReadingMap.has(r.device_id)) {
+            latestValidReadingMap.set(r.device_id, r);
           }
         });
 
         const updatedTroughs = dbDevices
           .filter((d) => d.type === "TROUGH")
           .map((d, index) => {
-            const r = latestReadingMap.get(d.id);
-            const hasData = r && (r.temp_dry !== null || r.temp_wet !== null);
-            const isSensorFault = r && r.temp_dry === null && r.temp_wet === null;
+            const r = latestValidReadingMap.get(d.id) || latestReadingMap.get(d.id);
+            const hasData = r && r.temp_dry !== null && r.temp_wet !== null;
+            const isSensorFault = r && (r.temp_dry === null || r.temp_wet === null || Boolean(r.sensor_fault_code));
 
             let dry: number | null = null;
             let wet: number | null = null;
             let delta: number | null = null;
-            let status: "NORMAL" | "WARNING" | "CRITICAL" | "OFFLINE" | "SENSOR_FAULT" = "NORMAL";
-            let statusMsg = "Within Optimal Envelope";
+            let status: "NORMAL" | "WARNING" | "CRITICAL" | "OFFLINE" | "SENSOR_FAULT" = "OFFLINE";
+            let statusMsg = "Sensor Offline";
 
-            if (isSensorFault) {
-              // Real readings arrived from Raspberry Pi, but PT100 probes are not connected yet
+            if (!r) {
+              // No active telemetry within the last 15 minutes
+              status = "OFFLINE";
+              statusMsg = "Sensor Offline";
+            } else if (isSensorFault && !hasData) {
+              // Node is online, but probes are disconnected or faulted
               dry = null;
               wet = null;
               delta = null;
               status = "SENSOR_FAULT";
-              statusMsg = "Sensor Fault: Probes Disconnected";
+              statusMsg = "Sensor Issue: Probe Fault";
             } else if (hasData) {
-              dry = r.temp_dry;
-              wet = r.temp_wet;
-              delta = r.delta ?? (dry !== null && wet !== null ? Math.round((dry - wet) * 10) / 10 : null);
+              dry = Number(r.temp_dry);
+              wet = Number(r.temp_wet);
+              delta = r.delta !== null ? Number(r.delta) : Math.round((dry - wet) * 10) / 10;
               const isWarn = delta !== null && (delta > 4.8 || delta < 3.5);
               status = isWarn ? "WARNING" : "NORMAL";
-              statusMsg = isWarn ? "Depression Above Band" : "Within Optimal Envelope";
-            } else if (!r) {
-              // No readings received yet for this device
-              status = "OFFLINE";
-              statusMsg = "Waiting for Telemetry";
+              statusMsg = isWarn ? "Warning: Exceeds Limit" : "Within Optimal Envelope";
             }
 
             return {
@@ -256,7 +268,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
               delta: delta,
               status: status as any,
               status_message: statusMsg,
-              last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Waiting",
+              last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Sensor Offline",
               sensor_dry_code: `Sensor A${index + 1}`,
               sensor_wet_code: `Sensor B${index + 1}`,
             };
@@ -268,8 +280,27 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
 
         const dryerDevice = dbDevices.find((d) => d.type === "DRYER");
         if (dryerDevice) {
-          const r = latestReadingMap.get(dryerDevice.id);
-          const temp = r?.temperature ?? 85.0;
+          const r = latestValidReadingMap.get(dryerDevice.id) || latestReadingMap.get(dryerDevice.id);
+          const hasTemp = r && r.temperature !== null && r.temperature !== undefined;
+          const isSensorFault = r && !hasTemp;
+
+          let temp: number | null = null;
+          let dryerStatus: "NORMAL" | "WARNING" | "CRITICAL" | "OFFLINE" | "SENSOR_FAULT" = "OFFLINE";
+          let dryerMsg = "Sensor Offline — No Active Telemetry";
+
+          if (!r) {
+            dryerStatus = "OFFLINE";
+            dryerMsg = "Sensor Offline — No Active Telemetry";
+          } else if (isSensorFault) {
+            dryerStatus = "SENSOR_FAULT";
+            dryerMsg = "Sensor Issue: Probe Fault";
+          } else if (hasTemp) {
+            temp = Number(r.temperature);
+            const isWarn = temp > 90.0 || temp < 80.0;
+            dryerStatus = isWarn ? "WARNING" : "NORMAL";
+            dryerMsg = isWarn ? "Warning: Exceeds Target Limit" : "Flue-gas Biomass Supply Steady";
+          }
+
           setDryer({
             id: dryerDevice.id,
             device_code: dryerDevice.device_code,
@@ -279,9 +310,9 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
             gateway_id: dryerDevice.gateway_id || "33333333-3333-3333-3333-333333333333",
             temperature: temp,
             target_temperature: 85.0,
-            status: temp > 90.0 || temp < 80.0 ? "WARNING" : "NORMAL",
-            status_message: "Flue-gas Biomass Supply Steady",
-            last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Just now",
+            status: dryerStatus,
+            status_message: dryerMsg,
+            last_seen_at: r?.captured_at ? formatTime(r.captured_at) : "Sensor Offline",
             sensor_code: "Pt100 RTD #H-01",
           });
         }
@@ -354,28 +385,38 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
             setTroughs((prev) =>
               prev.map((t) => {
                 if (t.id === newReading.device_id || t.device_code === newReading.device_code) {
-                  if (isSensorFault) {
-                    return {
-                      ...t,
-                      temp_dry: null,
-                      temp_wet: null,
-                      delta: null,
-                      status: "SENSOR_FAULT",
-                      status_message: "Sensor Fault: Probes Disconnected",
-                      last_seen_at: timeLabel,
-                    };
-                  } else if (hasTroughData) {
+                  if (hasTroughData) {
+                    const dry = Number(newReading.temp_dry);
+                    const wet = Number(newReading.temp_wet);
                     const delta =
-                      newReading.delta ??
-                      Math.round((newReading.temp_dry - newReading.temp_wet) * 10) / 10;
+                      newReading.delta !== null && newReading.delta !== undefined
+                        ? Number(newReading.delta)
+                        : Math.round((dry - wet) * 10) / 10;
                     const isWarn = delta > 4.8 || delta < 3.5;
                     return {
                       ...t,
-                      temp_dry: newReading.temp_dry,
-                      temp_wet: newReading.temp_wet,
+                      temp_dry: dry,
+                      temp_wet: wet,
                       delta: delta,
                       status: isWarn ? "WARNING" : "NORMAL",
-                      status_message: isWarn ? "Depression Above Band" : "Within Optimal Envelope",
+                      status_message: isWarn ? "Warning: Exceeds Limit" : "Within Optimal Envelope",
+                      last_seen_at: timeLabel,
+                    };
+                  } else if (isSensorFault) {
+                    // Only overwrite with SENSOR_FAULT if explicitly faulted or if no valid temp is cached
+                    if (newReading.sensor_fault_code || t.temp_dry === null) {
+                      return {
+                        ...t,
+                        temp_dry: null,
+                        temp_wet: null,
+                        delta: null,
+                        status: "SENSOR_FAULT",
+                        status_message: "Sensor Issue: Probe Fault",
+                        last_seen_at: timeLabel,
+                      };
+                    }
+                    return {
+                      ...t,
                       last_seen_at: timeLabel,
                     };
                   }

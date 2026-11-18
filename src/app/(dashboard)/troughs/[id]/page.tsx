@@ -26,7 +26,9 @@ export default function TroughDetailsPage({
   const isWarning =
     !isSensorFault &&
     !isOffline &&
-    (trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 5.0 || trough.delta < 3.0)));
+    (trough.status === "WARNING" ||
+      trough.status === "CRITICAL" ||
+      (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -44,23 +46,23 @@ export default function TroughDetailsPage({
             <h1 className="text-2xl sm:text-3xl font-bold text-[#012d1d] tracking-tight">
               {trough.name} Monitoring
             </h1>
-            {isSensorFault ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                Sensor Fault (Probes Disconnected)
+            {isWarning ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse" />
+                Warning • Exceeds Limit
+              </span>
+            ) : isSensorFault ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                Sensor Issue
               </span>
             ) : isOffline ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                Waiting for Telemetry
-              </span>
-            ) : isWarning ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
-                Warning (High Depression)
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-200/90 text-slate-700 border border-slate-300 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                Sensor Offline
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                 Normal
               </span>
@@ -69,11 +71,11 @@ export default function TroughDetailsPage({
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white shadow-xs border border-slate-200 self-start sm:self-auto text-[11px]">
-          <Wifi className={`w-3.5 h-3.5 ${isSensorFault ? "text-rose-600" : isOffline ? "text-slate-400" : "text-blue-600"}`} />
+          <Wifi className={`w-3.5 h-3.5 ${isWarning ? "text-rose-600" : isSensorFault ? "text-amber-600" : isOffline ? "text-slate-400" : "text-emerald-600"}`} />
           <span className="text-slate-500 font-medium">
             Updated {trough.last_seen_at} •{" "}
-            <span className={`font-semibold ${isSensorFault ? "text-rose-700" : isOffline ? "text-slate-600" : "text-blue-700"}`}>
-              {isSensorFault ? "Probe Fault" : isOffline ? "Awaiting Node" : "Sensor Connected"}
+            <span className={`font-semibold ${isWarning ? "text-rose-700" : isSensorFault ? "text-amber-700" : isOffline ? "text-slate-600" : "text-emerald-700"}`}>
+              {isWarning ? "Exceeds Limit" : isSensorFault ? "Sensor Issue" : isOffline ? "Sensor Offline" : "Sensor Connected"}
             </span>
           </span>
         </div>

@@ -139,19 +139,26 @@ export default function FactoryMonitoringPage() {
       {/* 2. Troughs Grid: Dynamic auto-scaling grid for any number of bays */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {troughs.map((trough) => {
+          const isOffline = trough.status === "OFFLINE";
           const isSensorFault = trough.status === "SENSOR_FAULT";
           const isWarning =
-            trough.status === "WARNING" || (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5));
+            !isOffline &&
+            !isSensorFault &&
+            (trough.status === "WARNING" ||
+              trough.status === "CRITICAL" ||
+              (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
 
           return (
             <div
               key={trough.device_code}
-              className={`bg-white rounded-xl p-4 shadow-xs border flex flex-col justify-between hover:shadow-md transition-shadow relative group ${
-                isSensorFault
-                  ? "border-rose-200 bg-rose-50/20"
-                  : isWarning
-                  ? "border-amber-200 bg-amber-50/20"
-                  : "border-slate-200"
+              className={`rounded-2xl p-4 border flex flex-col justify-between transition-all relative group ${
+                isWarning
+                  ? "bg-gradient-to-br from-rose-50/95 via-red-50/80 to-rose-100/75 border-rose-300 ring-1 ring-rose-200/80 shadow-[0_6px_24px_rgba(244,63,94,0.16)]"
+                  : isSensorFault
+                  ? "bg-gradient-to-br from-amber-50/95 via-yellow-50/80 to-amber-100/75 border-amber-300 ring-1 ring-amber-200/80 shadow-[0_6px_24px_rgba(245,158,11,0.15)]"
+                  : isOffline
+                  ? "bg-gradient-to-br from-slate-100/95 via-slate-100/85 to-slate-200/75 border-slate-300 ring-1 ring-slate-200/80 shadow-[0_6px_20px_rgba(100,116,139,0.12)]"
+                  : "bg-gradient-to-br from-emerald-50/95 via-emerald-50/75 to-teal-50/85 border-emerald-300 ring-1 ring-emerald-200/70 shadow-[0_6px_24px_rgba(16,185,129,0.14)]"
               }`}
             >
               <div>
@@ -160,10 +167,12 @@ export default function FactoryMonitoringPage() {
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        isSensorFault
-                          ? "bg-rose-500 animate-pulse"
-                          : isWarning
-                          ? "bg-amber-600 animate-pulse"
+                        isWarning
+                          ? "bg-rose-600 animate-pulse"
+                          : isSensorFault
+                          ? "bg-amber-500 animate-pulse"
+                          : isOffline
+                          ? "bg-slate-500"
                           : "bg-emerald-600"
                       }`}
                     />
@@ -174,14 +183,22 @@ export default function FactoryMonitoringPage() {
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                        isSensorFault
-                          ? "bg-rose-50 text-rose-800 border border-rose-200"
-                          : isWarning
-                          ? "bg-amber-50 text-amber-800 border border-amber-200"
-                          : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        isWarning
+                          ? "bg-rose-100 text-rose-800 border border-rose-300"
+                          : isSensorFault
+                          ? "bg-amber-100 text-amber-800 border border-amber-300"
+                          : isOffline
+                          ? "bg-slate-200/90 text-slate-700 border border-slate-300"
+                          : "bg-emerald-100 text-emerald-800 border border-emerald-300"
                       }`}
                     >
-                      {isSensorFault ? "Sensor Fault" : isWarning ? "Attention" : "Optimal"}
+                      {isWarning
+                        ? "Exceeds Limit"
+                        : isSensorFault
+                        ? "Sensor Issue"
+                        : isOffline
+                        ? "Sensor Offline"
+                        : "Normal"}
                     </span>
                     {!isViewer && (
                       <button
@@ -198,12 +215,26 @@ export default function FactoryMonitoringPage() {
                 </div>
 
                 {/* Dry & Wet Bulb Readings */}
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50/80 mb-3 border border-slate-100">
+                <div
+                  className={`grid grid-cols-2 gap-2 p-2.5 rounded-lg mb-3 border ${
+                    isWarning
+                      ? "bg-white/85 border-rose-200/80"
+                      : isSensorFault
+                      ? "bg-white/85 border-amber-200/80"
+                      : isOffline
+                      ? "bg-white/60 border-slate-200"
+                      : "bg-white/85 border-emerald-200/80"
+                  }`}
+                >
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       Dry Bulb
                     </span>
-                    <p className="text-xl font-bold text-[#1b4332] tabular-nums mt-0.5">
+                    <p
+                      className={`text-xl font-bold tabular-nums mt-0.5 ${
+                        isOffline ? "text-slate-400" : "text-[#1b4332]"
+                      }`}
+                    >
                       {trough.temp_dry !== null ? `${trough.temp_dry.toFixed(1)}°C` : "-- °C"}
                     </p>
                   </div>
@@ -211,7 +242,11 @@ export default function FactoryMonitoringPage() {
                     <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       Wet Bulb
                     </span>
-                    <p className="text-xl font-bold text-[#0284c7] tabular-nums mt-0.5">
+                    <p
+                      className={`text-xl font-bold tabular-nums mt-0.5 ${
+                        isOffline ? "text-slate-400" : "text-[#0284c7]"
+                      }`}
+                    >
                       {trough.temp_wet !== null ? `${trough.temp_wet.toFixed(1)}°C` : "-- °C"}
                     </p>
                   </div>
@@ -221,12 +256,16 @@ export default function FactoryMonitoringPage() {
                 <div
                   className={`p-2.5 rounded-lg border mb-3 flex items-center justify-between ${
                     isWarning
-                      ? "bg-amber-50/70 border-amber-200 text-amber-900"
-                      : "bg-[#f8f9fa] border-slate-200/80 text-slate-800"
+                      ? "bg-rose-100/70 border-rose-300 text-rose-900"
+                      : isSensorFault
+                      ? "bg-amber-100/70 border-amber-300 text-amber-900"
+                      : isOffline
+                      ? "bg-slate-200/60 border-slate-300 text-slate-500"
+                      : "bg-emerald-100/65 border-emerald-300 text-emerald-900"
                   }`}
                 >
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-slate-600">
                       Depression (ΔT)
                     </span>
                     <p className="text-xl font-extrabold tabular-nums leading-tight">
@@ -234,26 +273,38 @@ export default function FactoryMonitoringPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-400 block font-medium">
+                    <span className="text-[10px] text-slate-500 block font-medium">
                       Target 3.5–4.8°C
                     </span>
                     <span
                       className={`text-[10px] font-bold ${
-                        isWarning ? "text-amber-700" : "text-emerald-700"
+                        isWarning
+                          ? "text-rose-700"
+                          : isSensorFault
+                          ? "text-amber-800"
+                          : isOffline
+                          ? "text-slate-500"
+                          : "text-emerald-700"
                       }`}
                     >
-                      {isWarning ? "Out of Band" : "Within Target"}
+                      {isWarning
+                        ? "Exceeds Limit"
+                        : isSensorFault
+                        ? "Probe Issue"
+                        : isOffline
+                        ? "Sensor Offline"
+                        : "Within Target"}
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Card Footer: Code + Timestamp + Direct Link */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500">
                 <span className="font-mono font-medium">{trough.device_code} • {trough.last_seen_at}</span>
                 <Link
                   href={`/troughs/${trough.device_code}`}
-                  className="font-semibold text-slate-600 hover:text-[#012d1d] flex items-center gap-1 transition-colors"
+                  className="font-semibold text-[#012d1d] hover:underline flex items-center gap-1 transition-colors"
                 >
                   <span>Dial Detail</span>
                   <ArrowRight className="w-3 h-3" />
@@ -315,25 +366,45 @@ export default function FactoryMonitoringPage() {
                     <td className="py-2.5 px-4">
                       <span
                         className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
-                          t.delta === null
+                          t.status === "OFFLINE"
                             ? "bg-slate-100 text-slate-600"
+                            : t.status === "SENSOR_FAULT"
+                            ? "bg-amber-50 text-amber-800"
                             : inBand
                             ? "bg-emerald-50 text-emerald-800"
-                            : "bg-amber-50 text-amber-800"
+                            : "bg-rose-50 text-rose-800"
                         }`}
                       >
-                        {t.delta === null ? "No Data" : inBand ? "In Target (3.5–4.8°C)" : "Deviation"}
+                        {t.status === "OFFLINE"
+                          ? "Sensor Offline"
+                          : t.status === "SENSOR_FAULT"
+                          ? "Sensor Issue"
+                          : inBand
+                          ? "In Target (3.5–4.8°C)"
+                          : "Exceeds Limit"}
                       </span>
                     </td>
                     <td className="py-2.5 px-4">
                       <div className="flex items-center gap-1.5">
                         <span
                           className={`w-2 h-2 rounded-full ${
-                            t.status === "NORMAL" ? "bg-emerald-600" : "bg-amber-600 animate-pulse"
+                            t.status === "NORMAL"
+                              ? "bg-emerald-600"
+                              : t.status === "OFFLINE"
+                              ? "bg-slate-400"
+                              : t.status === "SENSOR_FAULT"
+                              ? "bg-amber-500 animate-pulse"
+                              : "bg-rose-600 animate-pulse"
                           }`}
                         />
                         <span className="font-medium text-slate-700">
-                          {t.status === "NORMAL" ? "Normal" : t.status === "SENSOR_FAULT" ? "Sensor Fault" : "Warning"}
+                          {t.status === "NORMAL"
+                            ? "Normal"
+                            : t.status === "OFFLINE"
+                            ? "Sensor Offline"
+                            : t.status === "SENSOR_FAULT"
+                            ? "Sensor Issue"
+                            : "Warning (Exceeds Limit)"}
                         </span>
                       </div>
                     </td>
