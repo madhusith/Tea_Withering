@@ -144,7 +144,7 @@ export function Header({
               }}
             >
               <Building2 className="w-4 h-4 text-[#1e40af]" />
-                <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || "St. Clair Tea Estate"}</span>
+                <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || "Ingestre Tea Factory KVPL"}</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
             </button>
 
@@ -217,7 +217,7 @@ export function Header({
             title="Assigned Factory (Managers and Viewers cannot switch factories)"
           >
             <Building2 className="w-4 h-4 text-slate-500" />
-            <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || profile?.factory_name || "St. Clair Tea Estate"}</span>
+            <span className="max-w-28 truncate sm:max-w-none">{currentFactory?.name || profile?.factory_name || "Ingestre Tea Factory KVPL"}</span>
             <span className="hidden sm:inline text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded ml-1">
               Assigned
             </span>

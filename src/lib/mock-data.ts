@@ -9,7 +9,7 @@ import {
 
 export const mockFactory = {
   id: "fac-st-clair",
-  name: "St. Clair Tea Estate",
+  name: "Ingestre Tea Factory KVPL",
   division: "Div. No. 03 • Trough Hall B",
   location: "Talawakelle, Sri Lanka",
   timezone: "Asia/Colombo",
@@ -103,7 +103,7 @@ export const mockDryer: DryerDevice = {
 export const mockAlerts: Alert[] = [
   {
     id: "alt-001",
-    factory_name: "St. Clair Estate",
+    factory_name: "Ingestre Tea Factory KVPL",
     device_code: "TR-003",
     device_name: "Bay 03",
     device_type: "TROUGH",
@@ -115,7 +115,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     id: "alt-002",
-    factory_name: "St. Clair Estate",
+    factory_name: "Ingestre Tea Factory KVPL",
     device_code: "DR-001",
     device_name: "Heating Bay",
     device_type: "DRYER",
@@ -127,7 +127,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     id: "alt-003",
-    factory_name: "St. Clair Estate",
+    factory_name: "Ingestre Tea Factory KVPL",
     device_code: "TR-007",
     device_name: "Bay 07",
     device_type: "TROUGH",
@@ -141,7 +141,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     id: "alt-004",
-    factory_name: "St. Clair Estate",
+    factory_name: "Ingestre Tea Factory KVPL",
     device_code: "TR-001",
     device_name: "Bay 01",
     device_type: "TROUGH",
@@ -155,7 +155,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     id: "alt-005",
-    factory_name: "St. Clair Estate",
+    factory_name: "Ingestre Tea Factory KVPL",
     device_code: "TR-004",
     device_name: "Bay 04",
     device_type: "TROUGH",

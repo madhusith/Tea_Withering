@@ -32,7 +32,7 @@ export default function UserManagementPage() {
   const [fullName, setFullName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newRole, setNewRole] = useState<UserRole>("manager");
-  const [newFactory, setNewFactory] = useState(factories[0]?.name || "St. Clair Tea Estate");
+  const [newFactory, setNewFactory] = useState(factories[0]?.name || "Ingestre Tea Factory KVPL");
 
   const totalUsers = users.length;
   const adminCount = users.filter((u) => u.role === "admin").length;
@@ -461,8 +461,8 @@ export default function UserManagementPage() {
                         </option>
                       ))
                     ) : (
-                      <option value="St. Clair Tea Estate">
-                        St. Clair Tea Estate (STC-01)
+                      <option value="Ingestre Tea Factory KVPL">
+                        Ingestre Tea Factory KVPL (STC-01)
                       </option>
                     )}
                   </select>

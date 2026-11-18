@@ -232,7 +232,7 @@ export default function LoginPage() {
           {/* Footer Meta */}
           <div className="mt-8 pt-5 border-t border-slate-100 text-center">
             <span className="text-[11px] text-slate-400 block">
-              St. Clair Tea Estate • Div. No. 03 • Industrial IoT Node
+              Ingestre Tea Factory KVPL • Div. No. 03 • Industrial IoT Node
             </span>
           </div>
         </div>

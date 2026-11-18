@@ -45,7 +45,7 @@ export default function DashboardOverviewPage() {
               }`}
             />
             <span className="text-[11px] uppercase tracking-wider text-[#116c4a] font-bold">
-              Trough Hall Active Cycle • St. Clair Estate
+              Trough Hall Active Cycle • Ingestre Tea Factory KVPL
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#012d1d] tracking-tight">

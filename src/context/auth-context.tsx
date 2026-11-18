@@ -25,7 +25,7 @@ const defaultProfile: UserProfile = {
   email: "manager@kelanivalley.com",
   role: "manager",
   factory_id: "22222222-2222-2222-2222-222222222222",
-  factory_name: "St. Clair Tea Estate",
+  factory_name: "Ingestre Tea Factory KVPL",
   status: "active",
   created_at: new Date().toISOString(),
 };
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const factoryName =
         memberData?.factories?.name ||
         supabaseUser.user_metadata?.factory_name ||
-        "St. Clair Tea Estate";
+        "Ingestre Tea Factory KVPL";
 
       setProfile({
         id: supabaseUser.id,
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: supabaseUser.email || "manager@kelanivalley.com",
         role: (supabaseUser.user_metadata?.role as UserRole) || "manager",
         factory_id: "22222222-2222-2222-2222-222222222222",
-        factory_name: "St. Clair Tea Estate",
+        factory_name: "Ingestre Tea Factory KVPL",
         status: "active",
         created_at: new Date().toISOString(),
       });

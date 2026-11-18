@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     const role = membership?.role || signInData.user.user_metadata?.role || "manager";
     const fullName = signInData.user.user_metadata?.full_name || "Factory User";
     const factoryId = membership?.factory_id || "22222222-2222-2222-2222-222222222222";
-    const factoryName = membership?.factories?.name || "St. Clair Tea Estate";
+    const factoryName = membership?.factories?.name || "Ingestre Tea Factory KVPL";
 
     return NextResponse.json({
       success: true,

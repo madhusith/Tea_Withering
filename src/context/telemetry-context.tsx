@@ -38,7 +38,7 @@ interface TelemetryContextType {
 
 const defaultFactory: FactoryItem = {
   id: "22222222-2222-2222-2222-222222222222",
-  name: "St. Clair Tea Estate",
+  name: "Ingestre Tea Factory KVPL",
   code: "STC-01",
   location: "Div. No. 03 • Trough Hall B",
 };
@@ -131,7 +131,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
             : [
                 {
                   id: assignedFactoryId,
-                  name: currentProfile?.factory_name || "St. Clair Tea Estate",
+                  name: currentProfile?.factory_name || "Ingestre Tea Factory KVPL",
                   code: "STC-01",
                   location: "Assigned Estate",
                 },
