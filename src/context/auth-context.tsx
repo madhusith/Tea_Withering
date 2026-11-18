@@ -47,33 +47,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setUser(supabaseUser);
-    const supabase = createClient();
 
     try {
-      const { data: memberData } = await (supabase
-        .from("memberships") as any)
-        .select("role, factory_id, factories(name)")
-        .eq("user_id", supabaseUser.id)
-        .maybeSingle();
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const json = await res.json();
+        if (json.profile) {
+          setProfile(json.profile);
+          setLoading(false);
+          return;
+        }
+      }
 
-      const role: UserRole =
-        (memberData?.role as UserRole) ||
-        (supabaseUser.user_metadata?.role as UserRole) ||
-        "manager";
+      const email = (supabaseUser.email || "").toLowerCase();
+      const fallbackRole: UserRole = email.startsWith("admin")
+        ? "admin"
+        : email.startsWith("manager")
+        ? "manager"
+        : "viewer";
+
+      const role: UserRole = (
+        (supabaseUser.user_metadata?.role as string) || fallbackRole
+      ).toLowerCase() as UserRole;
 
       const fullName =
         supabaseUser.user_metadata?.full_name ||
-        memberData?.factories?.name ||
         supabaseUser.email?.split("@")[0] ||
         "Factory User";
 
       const factoryId =
-        memberData?.factory_id ||
         supabaseUser.user_metadata?.factory_id ||
         "22222222-2222-2222-2222-222222222222";
 
       const factoryName =
-        memberData?.factories?.name ||
         supabaseUser.user_metadata?.factory_name ||
         "Ingestre Tea Factory KVPL";
 
@@ -88,12 +94,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: supabaseUser.created_at || new Date().toISOString(),
       });
     } catch {
-      // Fallback to metadata
+      const email = (supabaseUser.email || "").toLowerCase();
+      const fallbackRole: UserRole = email.startsWith("admin")
+        ? "admin"
+        : email.startsWith("manager")
+        ? "manager"
+        : "viewer";
       setProfile({
         id: supabaseUser.id,
         full_name: supabaseUser.user_metadata?.full_name || "Factory Manager",
         email: supabaseUser.email || "manager@kelanivalley.com",
-        role: (supabaseUser.user_metadata?.role as UserRole) || "manager",
+        role: ((supabaseUser.user_metadata?.role as string) || fallbackRole).toLowerCase() as UserRole,
         factory_id: "22222222-2222-2222-2222-222222222222",
         factory_name: "Ingestre Tea Factory KVPL",
         status: "active",
@@ -144,6 +155,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (!res.ok) {
         return { success: false, error: data.error || "Login failed" };
+      }
+
+      if (data.session?.access_token && data.session?.refresh_token) {
+        const supabase = createClient();
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
       }
 
       setUser(data.user);

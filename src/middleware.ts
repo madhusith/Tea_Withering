@@ -64,14 +64,15 @@ export async function middleware(request: NextRequest) {
 
   // 4. Role-based route enforcement
   if (user) {
-    const email = user.email || "";
-    const role =
+    const email = (user.email || "").toLowerCase();
+    const role = String(
       user.user_metadata?.role ||
-      (email.startsWith("admin")
-        ? "admin"
-        : email.startsWith("manager")
-        ? "manager"
-        : "viewer");
+        (email.startsWith("admin")
+          ? "admin"
+          : email.startsWith("manager")
+          ? "manager"
+          : "viewer")
+    ).toLowerCase();
 
     // Parameter Adjustment, User Management & Factory Management are strictly ADMIN ONLY
     if (
@@ -80,11 +81,6 @@ export async function middleware(request: NextRequest) {
         pathname.startsWith("/users") ||
         pathname.startsWith("/factories"))
     ) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    // Reports are for Admin & Manager only (blocked for Viewer)
-    if (role === "viewer" && pathname.startsWith("/reports")) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }

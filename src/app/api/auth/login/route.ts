@@ -88,14 +88,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: signInError.message }, { status: 401 });
     }
 
-    // 4. Fetch membership role
-    const { data: membership } = await (serverSupabase
+    // 4. Fetch membership role using adminClient to bypass RLS recursion
+    const { data: membership } = await (adminClient
       .from("memberships") as any)
       .select("role, factory_id, factories(name)")
       .eq("user_id", signInData.user.id)
       .maybeSingle();
 
-    const role = membership?.role || signInData.user.user_metadata?.role || "manager";
+    const fallbackRole = cleanEmail.startsWith("admin")
+      ? "admin"
+      : cleanEmail.startsWith("manager")
+      ? "manager"
+      : "viewer";
+
+    const role = (
+      membership?.role ||
+      signInData.user.user_metadata?.role ||
+      fallbackRole
+    ).toLowerCase();
     const fullName = signInData.user.user_metadata?.full_name || "Factory User";
     const factoryId = membership?.factory_id || "22222222-2222-2222-2222-222222222222";
     const factoryName = membership?.factories?.name || "Ingestre Tea Factory KVPL";
