@@ -111,16 +111,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       <div className="flex flex-col gap-6">
         {/* Brand Header */}
         <div className="px-6 flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm"
-            style={{
-              background: "linear-gradient(135deg, rgb(2, 132, 199) 0%, rgb(30, 64, 175) 100%)",
-            }}
-          >
-            <Sprout className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm overflow-hidden shrink-0 p-0.5">
+            <img
+              src="/assets/kvpl-logo.png"
+              alt="KVPL Tea Factory Logo"
+              className="w-full h-full object-contain scale-125"
+            />
           </div>
           <div className="flex flex-col">
-            <span className="text-[14px] font-semibold tracking-tight text-white">Ceylon IoT</span>
+            <span className="text-[14px] font-semibold tracking-tight text-white">KVPL Tea Factory</span>
             <span className="text-[11px] font-medium text-emerald-200/80">Withering Telemetry</span>
           </div>
           <button

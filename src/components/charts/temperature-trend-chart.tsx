@@ -128,7 +128,7 @@ export function TemperatureTrendChart({
     return () => {
       isMounted = false;
     };
-  }, [deviceId, timeRange, formatTimestamp]);
+  }, [deviceId, timeRange, formatTimestamp, currentDryTemp, currentWetTemp]);
 
   // Combine historical points with latest real-time reading if available
   const chartData = useMemo(() => {
