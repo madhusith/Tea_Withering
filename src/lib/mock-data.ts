@@ -241,8 +241,8 @@ export const mockUsers: UserProfile[] = [
 ];
 
 export const mockParameters: ParameterThresholds = {
-  min_depression: 3.5,
-  max_depression: 4.8,
+  min_depression: 0.0,
+  max_depression: 8.0,
   ambient_dry_min: 18.0,
   ambient_dry_max: 36.0,
   ambient_wet_min: 15.0,

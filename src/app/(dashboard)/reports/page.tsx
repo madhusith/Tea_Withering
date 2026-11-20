@@ -172,7 +172,7 @@ export default function ReportsPage() {
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Monitored Troughs</span>
           <p className="text-lg font-bold text-[#116c4a] mt-1">{troughs.length} Active Bays</p>
-          <p className="text-xs text-slate-500">Depression target 3.5°C – 4.8°C</p>
+          <p className="text-xs text-slate-500">Depression target 0.0°C – 8.0°C</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Biomass Heating</span>

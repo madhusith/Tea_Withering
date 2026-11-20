@@ -28,7 +28,7 @@ export default function TroughDetailsPage({
     !isOffline &&
     (trough.status === "WARNING" ||
       trough.status === "CRITICAL" ||
-      (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
+      (trough.delta !== null && (trough.delta > 8.0 || trough.delta < 0.0)));
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-12 flex flex-col gap-5 py-3">
@@ -140,7 +140,7 @@ export default function TroughDetailsPage({
               </span>
               <span className="flex items-center gap-1 text-[10px] font-semibold text-[#1B4332] bg-[#E8F5E9] px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1B4332]" />
-                Target 3.5–4.8°C
+                Target 0.0–8.0°C
               </span>
             </div>
             <h2 className="text-[15px] font-bold text-[#0B1C30]">
@@ -173,7 +173,7 @@ export default function TroughDetailsPage({
 
           {/* Range Visual Envelope Bar */}
           <div className="mt-2 pt-3 border-t border-slate-100">
-            <DepressionTargetBar measuredDelta={trough.delta} minTarget={3.5} maxTarget={4.8} maxScale={8.0} />
+            <DepressionTargetBar measuredDelta={trough.delta} minTarget={0.0} maxTarget={8.0} maxScale={10.0} />
           </div>
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function TroughDetailsPage({
               Specification Baseline
             </span>
             <span className="text-[12px] text-[#0b1c30] font-semibold">
-              Acceptable Operating Delta: 3.5°C – 4.8°C
+              Acceptable Operating Delta: 0.0°C – 8.0°C
             </span>
           </div>
         </div>

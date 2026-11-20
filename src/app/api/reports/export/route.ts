@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
           row.temp_dry ?? "",
           row.temp_wet ?? "",
           row.delta ?? "",
-          "3.5 - 4.8",
+          "0.0 - 8.0",
           row.sequence_no,
           row.boot_id || "",
           row.rssi ?? "",

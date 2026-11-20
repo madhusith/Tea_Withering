@@ -19,7 +19,7 @@ export default function DashboardOverviewPage() {
       (t.status !== "OFFLINE" &&
         t.status !== "SENSOR_FAULT" &&
         t.delta !== null &&
-        (t.delta > 4.8 || t.delta < 3.5))
+        (t.delta > 8.0 || t.delta < 0.0))
   ).length;
   const issueCount = troughs.filter((t) => t.status === "SENSOR_FAULT").length;
   const offlineCount = troughs.filter((t) => t.status === "OFFLINE").length;
@@ -227,7 +227,7 @@ export default function DashboardOverviewPage() {
             !isOffline &&
             (trough.status === "WARNING" ||
               trough.status === "CRITICAL" ||
-              (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
+              (trough.delta !== null && (trough.delta > 8.0 || trough.delta < 0.0)));
 
           return (
             <div
@@ -352,7 +352,7 @@ export default function DashboardOverviewPage() {
                     >
                       Depression (ΔT)
                     </span>
-                    <span className="text-[10px] text-slate-500 font-medium">Target 3.5–4.8°C</span>
+                    <span className="text-[10px] text-slate-500 font-medium">Target 0.0–8.0°C</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
                     <span

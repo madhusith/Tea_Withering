@@ -55,8 +55,8 @@ ON CONFLICT (factory_id, device_code) DO NOTHING;
 -- 5. Insert Default Alarm Rules (Parameters)
 INSERT INTO alarm_rules (factory_id, device_type, metric, min_value, max_value, duration_seconds, hysteresis, severity, enabled)
 VALUES
-  -- Withering Trough Depression Limits: Target band 3.5°C to 4.8°C
-  ('22222222-2222-2222-2222-222222222222', 'TROUGH', 'WET_BULB_DEPRESSION', 3.5, 4.8, 120, 0.2, 'WARNING', true),
+  -- Withering Trough Depression Limits: Target band 0.0°C to 8.0°C
+  ('22222222-2222-2222-2222-222222222222', 'TROUGH', 'WET_BULB_DEPRESSION', 0.0, 8.0, 120, 0.2, 'WARNING', true),
   -- Withering Trough Dry Bulb Ambient Upper Limit: 38.0°C
   ('22222222-2222-2222-2222-222222222222', 'TROUGH', 'DRY_BULB_TEMPERATURE', 18.0, 38.0, 60, 0.5, 'WARNING', true),
   -- Withering Trough Wet Bulb Ambient Upper Limit: 28.0°C

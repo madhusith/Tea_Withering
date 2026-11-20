@@ -9,9 +9,9 @@ interface DepressionTargetBarProps {
 
 export function DepressionTargetBar({
   measuredDelta,
-  minTarget = 3.5,
-  maxTarget = 4.8,
-  maxScale = 8.0,
+  minTarget = 0.0,
+  maxTarget = 8.0,
+  maxScale = 10.0,
 }: DepressionTargetBarProps) {
   const windowLeftPercent = (minTarget / maxScale) * 100;
   const windowWidthPercent = ((maxTarget - minTarget) / maxScale) * 100;

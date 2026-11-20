@@ -251,7 +251,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
               dry = Number(r.temp_dry);
               wet = Number(r.temp_wet);
               delta = r.delta !== null ? Number(r.delta) : Math.round((dry - wet) * 10) / 10;
-              const isWarn = delta !== null && (delta > 4.8 || delta < 3.5);
+              const isWarn = delta !== null && (delta > 8.0 || delta < 0.0);
               status = isWarn ? "WARNING" : "NORMAL";
               statusMsg = isWarn ? "Warning: Exceeds Limit" : "Within Optimal Envelope";
             }
@@ -392,7 +392,7 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
                       newReading.delta !== null && newReading.delta !== undefined
                         ? Number(newReading.delta)
                         : Math.round((dry - wet) * 10) / 10;
-                    const isWarn = delta > 4.8 || delta < 3.5;
+                    const isWarn = delta > 8.0 || delta < 0.0;
                     return {
                       ...t,
                       temp_dry: dry,

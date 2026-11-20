@@ -146,7 +146,7 @@ export default function FactoryMonitoringPage() {
             !isSensorFault &&
             (trough.status === "WARNING" ||
               trough.status === "CRITICAL" ||
-              (trough.delta !== null && (trough.delta > 4.8 || trough.delta < 3.5)));
+              (trough.delta !== null && (trough.delta > 8.0 || trough.delta < 0.0)));
 
           return (
             <div
@@ -274,7 +274,7 @@ export default function FactoryMonitoringPage() {
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-slate-500 block font-medium">
-                      Target 3.5–4.8°C
+                      Target 0.0–8.0°C
                     </span>
                     <span
                       className={`text-[10px] font-bold ${
@@ -345,7 +345,7 @@ export default function FactoryMonitoringPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {troughs.map((t) => {
-                const inBand = t.delta !== null && t.delta >= 3.5 && t.delta <= 4.8;
+                const inBand = t.delta !== null && t.delta >= 0.0 && t.delta <= 8.0;
                 return (
                   <tr key={t.device_code} className="hover:bg-slate-50/60 transition-colors">
                     <td className="py-2.5 px-4 font-mono font-semibold text-slate-700">
@@ -380,7 +380,7 @@ export default function FactoryMonitoringPage() {
                           : t.status === "SENSOR_FAULT"
                           ? "Sensor Issue"
                           : inBand
-                          ? "In Target (3.5–4.8°C)"
+                          ? "In Target (0.0–8.0°C)"
                           : "Exceeds Limit"}
                       </span>
                     </td>
